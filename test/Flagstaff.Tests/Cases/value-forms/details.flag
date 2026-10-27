@@ -1,0 +1,22 @@
+view DetailsView {
+    bind vm: DetailsViewModel;
+
+    Page.Resources: {
+        SolidColorBrush key: Accent Color: "#2563eb";
+    }
+
+    Border Background: theme(CardBackgroundFillColorDefaultBrush) BorderBrush: resource(Accent) load: load(vm.ShowDetails) uid: "DetailsPane" {
+        text "Details";
+    }
+    Border Background: Red BorderBrush: "#ff0000" BorderThickness: 2;
+    Rectangle Fill: CornflowerBlue Stroke: "#80000000" Height: 8;
+    card "Lazy" load: load(vm.ShowCard) uid: "LazyCard" {
+        text "Loaded on demand";
+    }
+    button "Menu" {
+        Flyout: Flyout {
+            text "Saved";
+            toast "Hi" when(vm.ShowToast);
+        }
+    }
+}

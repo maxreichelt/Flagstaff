@@ -1,0 +1,43 @@
+name: Language proposal
+description: Propose a new keyword, property, or syntax for .flag files.
+labels: ["language", "proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Flagstaff keywords exist for **common** or **context-dependent** UI: markup whose correctness depends on binding roots, templates, grid placement, or code-behind wiring. Self-contained, uncommon controls are usually better served by `xaml { }`. See "Design philosophy" in LANG.md.
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: What are you building, and what goes wrong today (with `xaml { }` or existing keywords)? How common is the pattern?
+    validations:
+      required: true
+  - type: textarea
+    id: syntax
+    attributes:
+      label: Proposed syntax
+      description: 'Use the universal element form, `keyword "label" vm.Binding key: value when(cond) { ... }`. Show a realistic example.'
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: xaml
+    attributes:
+      label: Emitted XAML sketch
+      description: Roughly what the compiler should generate (XAML, plus any ViewModel or code-behind members and inferred types).
+      render: xml
+    validations:
+      required: true
+  - type: textarea
+    id: llm-rationale
+    attributes:
+      label: LLM-authoring rationale
+      description: Why will an LLM (or a person) write this correctly on the first try? What mistakes does it prevent? Could it be confused with an existing keyword?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Existing keywords plus properties, `xaml { }`, or ViewModel code.

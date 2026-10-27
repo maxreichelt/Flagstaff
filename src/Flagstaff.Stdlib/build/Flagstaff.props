@@ -1,0 +1,7 @@
+<!--
+  Forwarder kept for projects that import Flagstaff by path from a source checkout.
+  The real file lives in src/Flagstaff.Build/build/ (shipped in the `Flagstaff` package).
+-->
+<Project>
+  <Import Project="$(MSBuildThisFileDirectory)..\..\Flagstaff.Build\build\Flagstaff.props" />
+</Project>

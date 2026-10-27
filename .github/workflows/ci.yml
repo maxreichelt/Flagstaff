@@ -1,0 +1,145 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-test-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj') }}
+          restore-keys: nuget-test-${{ runner.os }}-
+
+      # Fails when src/Flagstaff.Compiler/Manifest/winui-manifest.json is stale against the WindowsAppSDK
+      # version in Directory.Packages.props (the tool's restore downloads that package's .winmd files).
+      - name: Control manifest is up to date
+        run: dotnet run --project tools/ManifestGen -c Release -- --check
+
+      # Per-project (test/Flagstaff.Tests, test/Flagstaff.Cli.Tests when present) so the
+      # WinUI Stdlib, which needs a Platform, stays off the test path.
+      - name: Test
+        shell: pwsh
+        run: |
+          $projects = @(Get-ChildItem test -Recurse -Filter *.Tests.csproj)
+          if ($projects.Count -eq 0) { throw 'No test projects found under test/.' }
+          foreach ($p in $projects) {
+            dotnet test $p.FullName -c Release --logger "trx;LogFilePrefix=$($p.BaseName)" --results-directory TestResults
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults
+          if-no-files-found: ignore
+
+  pack:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-pack-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj') }}
+          restore-keys: nuget-pack-${{ runner.os }}-
+
+      - name: Pack Flagstaff.Stdlib, Flagstaff.CLI, Flagstaff
+        shell: pwsh
+        run: |
+          foreach ($p in 'src/Flagstaff.Stdlib', 'src/Flagstaff.CLI', 'src/Flagstaff.Build') {
+            dotnet pack $p -c Release -o artifacts/packages
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+
+      - name: List package contents
+        shell: pwsh
+        run: |
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          foreach ($f in Get-ChildItem artifacts/packages -Filter *.nupkg) {
+            "== $($f.Name)"
+            $z = [IO.Compression.ZipFile]::OpenRead($f.FullName)
+            try { $z.Entries | ForEach-Object { "  $($_.FullName)" } } finally { $z.Dispose() }
+          }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: artifacts/packages/*.nupkg
+          if-no-files-found: error
+
+  sample-build:
+    needs: pack
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - uses: microsoft/setup-msbuild@v2
+
+      # Restore-only: this job installs the freshly packed Flagstaff packages into the NuGet
+      # cache, and they must never be saved back (same version number, different bits next run).
+      - uses: actions/cache/restore@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-pack-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj') }}
+          restore-keys: nuget-pack-${{ runner.os }}-
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: artifacts/packages
+
+      # samples/nuget.config maps Flagstaff* to artifacts/packages and everything else to nuget.org.
+      - name: Build TaskTrack from the Flagstaff package
+        run: msbuild samples/TaskTrack/TaskTrack.csproj /restore /p:Platform=x64 /p:Configuration=Release /p:FlagstaffFromPackage=true /warnaserror /v:m
+
+      - name: Smoke-run TaskTrack
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem samples/TaskTrack/bin/x64/Release -Recurse -Filter TaskTrack.exe | Select-Object -First 1
+          if (-not $exe) { throw 'TaskTrack.exe not found.' }
+          $env:FLAGSTAFF_SMOKE = '1'
+          $p = Start-Process -FilePath $exe.FullName -PassThru
+          if (-not $p.WaitForExit(60000)) {
+            $p.Kill()
+            throw 'TaskTrack smoke run timed out after 60 s.'
+          }
+          if ($p.ExitCode -ne 0) { throw "TaskTrack smoke run exited with $($p.ExitCode)." }
+          'TaskTrack smoke run passed.'
+
+      - name: CLI build path
+        run: dotnet run --project src/Flagstaff.CLI -c Release -- build samples/TaskTrack --format json

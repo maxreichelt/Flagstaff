@@ -1,0 +1,24 @@
+view NotesView {
+    bind vm: NotesViewModel;
+
+    TabView SelectedIndex: vm.TabIndex IsAddTabButtonVisible: false TabWidthMode: "SizeToContent" {
+        TabViewItem Header: "Today" IsClosable: false {
+            IconSource: SymbolIconSource Symbol: Calendar;
+            stack {
+                heading "Today";
+                Slider vm.Volume Minimum: 0 Maximum: 100 Orientation: Horizontal Margin: "0,8,0,0";
+                text "Pick a date:";
+                CalendarDatePicker Date: vm.Due PlaceholderText: "Due date";
+            }
+        }
+        TabViewItem Header: vm.DraftTitle IsClosable: false when(vm.HasDraft) {
+            Border Padding: 12 CornerRadius: 4 Background: theme(CardBackgroundFillColorDefaultBrush) {
+                TextBlock Text: vm.Draft TextWrapping: Wrap;
+            }
+        }
+    }
+
+    Button -> navigate(SettingsView) load: load(vm.ShowSettings) {
+        "Settings";
+    }
+}

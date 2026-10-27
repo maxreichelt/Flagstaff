@@ -1,0 +1,3 @@
+view SettingsView {
+    text "Settings";
+}

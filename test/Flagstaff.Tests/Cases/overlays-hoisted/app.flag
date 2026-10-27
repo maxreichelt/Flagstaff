@@ -1,0 +1,6 @@
+app HoistApp {
+    nav top {
+        brand "Hoist";
+        link "Board" icon: home -> BoardView;
+    }
+}

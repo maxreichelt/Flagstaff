@@ -1,0 +1,10 @@
+view {{ViewName}} {
+    bind vm: {{ViewModel}};
+    onload -> vm.Load;
+
+    toolbar {
+        heading "{{Label}}" icon: {{Icon}};
+    }
+
+    text vm.Status;
+}

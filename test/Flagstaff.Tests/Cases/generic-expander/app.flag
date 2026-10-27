@@ -1,0 +1,6 @@
+app SettingsApp {
+    nav top {
+        brand "Settings";
+        link "Settings" icon: home -> SettingsView;
+    }
+}

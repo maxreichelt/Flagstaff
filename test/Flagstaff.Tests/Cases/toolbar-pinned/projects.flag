@@ -1,0 +1,23 @@
+view ProjectsView {
+    bind vm: ProjectsViewModel;
+
+    text "Intro text scrolls; the toolbar below is pinned above it.";
+
+    toolbar {
+        heading "Projects" icon: list;
+        spacer;
+        button "Add" -> vm.AddCommand;
+    }
+
+    stack {
+        toolbar {
+            text "Nested toolbars stay inline";
+        }
+    }
+
+    toolbar {
+        text "A second top-level toolbar scrolls with the body";
+    }
+
+    text vm.Footer;
+}

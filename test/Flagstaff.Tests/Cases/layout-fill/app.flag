@@ -1,0 +1,6 @@
+app FillApp {
+    nav top {
+        brand "Fill";
+        link "Inbox" icon: mail -> InboxView;
+    }
+}

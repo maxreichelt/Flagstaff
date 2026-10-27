@@ -1,0 +1,21 @@
+// Hand-written half of HomeViewModel. Flagstaff generates HomeViewModel.g.cs from Flags/home.flag
+// (an [ObservableProperty] per vm.X and a [RelayCommand] per command); implement the delegates here.
+using System.Threading.Tasks;
+
+namespace {{AppName}}.ViewModels;
+
+public partial class HomeViewModel
+{
+    // onload -> vm.Load;  runs when the page is shown.
+    private partial Task OnLoadAsync()
+    {
+        OpenCount = "3";
+        DoneCount = "5";
+        OverdueCount = 0;
+        Status = $"Loaded at {DateTime.Now:t}";
+        return Task.CompletedTask;
+    }
+
+    // button "Refresh" -> vm.RefreshCommand;
+    private partial Task OnRefreshAsync() => OnLoadAsync();
+}

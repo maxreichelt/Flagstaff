@@ -1,0 +1,8 @@
+view FiltersView {
+    bind vm: FiltersViewModel;
+
+    select "Status" vm.Status options: ["Open", "Closed", "On hold"];
+    select "Year"   vm.Year options: 2024..2026;
+    select "Vendor" vm.Vendor items: vm.Vendors of Vendor display: item.Name;
+    select "Owner"  vm.Owner items: vm.Owners of Person;
+}

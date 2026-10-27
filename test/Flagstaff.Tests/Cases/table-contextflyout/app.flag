@@ -1,0 +1,6 @@
+app OrdersApp {
+    nav top {
+        brand "Orders";
+        link "Home" icon: home -> OrdersView;
+    }
+}

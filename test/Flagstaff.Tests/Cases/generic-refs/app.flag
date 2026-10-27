@@ -1,0 +1,6 @@
+app ShellApp {
+    nav top {
+        brand "Shell";
+        link "Shell" icon: home -> ShellView;
+    }
+}

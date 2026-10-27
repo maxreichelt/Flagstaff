@@ -1,0 +1,37 @@
+---
+description: Flagstaff .flag files and ViewModel partials. Use when editing screens (Flags/*.flag) or their C# logic (ViewModels/*.cs) in a Flagstaff WinUI 3 app.
+globs: ["**/*.flag", "ViewModels/**"]
+alwaysApply: false
+---
+
+# Flagstaff
+
+`.flag` files in `Flags/` compile to WinUI 3 XAML and CommunityToolkit.Mvvm partials in `Generated/`. Logic lives in `ViewModels/*.cs`.
+
+## Loop
+
+1. `flagstaff check --format json`: fix until `"ok": true`; apply each diagnostic's `hint`.
+2. `flagstaff stubs --update`: adds missing `On*Async` stubs to `ViewModels/*.cs`.
+3. Implement each one as `private partial async Task OnXAsync() { ... }`.
+4. `flagstaff build --format json`: fix until `"ok": true`. Never use `dotnet build`.
+5. `flagstaff run --no-build`.
+
+## Rules
+
+- Never edit `Generated/`.
+- Don't redeclare generated `[ObservableProperty]` or `[RelayCommand]` members.
+- DI registrations go in `App.Services.cs` (`ConfigureServices`, `OnAppStarting` for async startup steps, `OnAppLaunched`).
+- Prefer keyword > generic element (PascalCase WinUI type, `TreeView name: Nodes;`) > `xaml { }`. Never invent lowercase keywords.
+- Locality rule: reference elements with `ref(Name)` (a `name:` in the view), never a string; `Grid.Row:` only inside a generic `Grid` with `RowDefinitions:`.
+
+## Syntax reminders
+
+- `bind vm: NameViewModel;` first, then `onload -> vm.Load;`, implemented as `OnLoadAsync()`.
+- Commands end in `Command`: `button "Save" -> vm.SaveCommand;`. Row commands: `-> vm.EditCommand(item)` → `OnEditAsync(T item)`.
+- Positional bindings: `stat "Open" vm.OpenCount;`. Inside `table`/`list` rows use `item.X`, never `vm.X`.
+- `table items: vm.Orders of Order { col "Name" bind: item.Name; empty "None."; }`; `list items: vm.Orders of Order { text item.Name; }`.
+- `when(vm.Count > 0 && !vm.IsBusy)`, `enabled(vm.CanSave)`. `toast`/`dialog`/`confirm` need `when(vm.Flag)`.
+- `Expander Header: "More" { ... }`; XAML props on keywords: `textbox "Name" vm.Name Margin: "0,8";`, `button "More" { Flyout: MenuFlyout { ... } }`; events: `on TextChanged -> vm.SearchCommand;`.
+- Leaf elements end with `;`.
+
+When unsure, run `flagstaff spec --section <name>`. The full contract is in `AGENTS.md`.

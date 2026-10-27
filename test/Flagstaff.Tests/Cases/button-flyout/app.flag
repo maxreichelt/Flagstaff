@@ -1,0 +1,6 @@
+app FlyoutApp {
+    nav top {
+        brand "Flyout";
+        link "Home" icon: home -> ItemsView;
+    }
+}

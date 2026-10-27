@@ -1,0 +1,21 @@
+view HomeView {
+    bind vm: HomeViewModel;
+    onload -> vm.Load;
+
+    toolbar {
+        heading "Home" icon: home;
+        spacer;
+        button "Refresh" -> vm.RefreshCommand;
+    }
+
+    cards cols: 3 {
+        stat "Open" vm.OpenCount;
+        stat "Done" vm.DoneCount variant: success;
+        stat "Overdue" vm.OverdueCount variant: danger when(vm.OverdueCount > 0);
+    }
+
+    card "Welcome" icon: favorite {
+        text "Edit Flags/home.flag, then run: flagstaff run";
+        text vm.Status;
+    }
+}

@@ -1,0 +1,6 @@
+# CLAUDE.md: {{AppName}}
+
+Read [AGENTS.md](AGENTS.md) before editing `Flags/*.flag` or `ViewModels/*.cs`. It covers the check, stubs, build, and run loop, the rules, and the conventions.
+Never edit `Generated/`. Implement `private partial async Task On{X}Async()` in `ViewModels/*.cs`; `flagstaff stubs --update` adds missing ones.
+Run `flagstaff check --format json` after every `.flag` edit and `flagstaff build --format json` before finishing.
+For language details, run `flagstaff spec --section <name>` instead of guessing syntax. The `flagstaff` skill in `.claude/skills/` has the short version.

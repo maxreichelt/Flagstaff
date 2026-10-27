@@ -1,0 +1,6 @@
+app SplitApp {
+    nav side {
+        brand "Split";
+        link "Orders" icon: list -> OrdersView;
+    }
+}

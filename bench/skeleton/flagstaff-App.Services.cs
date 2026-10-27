@@ -1,0 +1,16 @@
+using Microsoft.Extensions.DependencyInjection;
+
+namespace BenchApp;
+
+// Flagstaff generates App.xaml.cs (DI container, ViewModel registrations, MainWindow).
+// Register your own services here; ViewModels can take them as constructor parameters.
+public partial class App
+{
+    partial void ConfigureServices(IServiceCollection services)
+    {
+        // services.AddSingleton<IMyService, MyService>();
+    }
+
+    // Async startup work (seeding, migrations) runs before MainWindow is created; never block on it:
+    // partial void OnAppStarting(List<Func<Task>> steps) => steps.Add(() => GetService<IMyService>().InitializeAsync());
+}

@@ -1,0 +1,3 @@
+﻿Warning notes.flag(11,17): 'CalendarDatePicker' has a keyword: use 'datepicker'
+Warning notes.flag(16,17): 'TextBlock' has a keyword: use 'text'
+Warning notes.flag(21,5): 'Button' has a keyword: use 'button'

@@ -1,0 +1,16 @@
+view ProfileView {
+    bind vm: ProfileViewModel;
+
+    heading "Profile";
+    text vm.DisplayName;
+    button "Edit" -> vm.OpenEditCommand;
+
+    dialog "Edit profile" message: "Changes apply immediately." when(vm.IsEditOpen) {
+        "Tell us who you are.";
+        textbox "Name" vm.DisplayName;
+        number "Age" vm.Age;
+        checkbox "Subscribe to updates" vm.Subscribe;
+        button "Cancel" -> vm.CancelEditCommand;
+        button "Save" -> vm.SaveProfileCommand;
+    }
+}

@@ -1,0 +1,6 @@
+app AnimApp {
+    nav top {
+        brand "Animation";
+        link "Home" icon: home -> PanelView;
+    }
+}

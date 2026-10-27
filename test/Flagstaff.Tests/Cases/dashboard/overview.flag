@@ -1,0 +1,32 @@
+view OverviewView {
+    bind vm: OverviewViewModel;
+    onload -> vm.LoadAsync;
+
+    toolbar {
+        heading "Overview" icon: home;
+        spacer;
+        select vm.Year options: 2020..2026;
+        button "Refresh" -> vm.RefreshCommand;
+    }
+
+    alert when(vm.HasOverdue) variant: danger {
+        "Overdue invoices need attention.";
+        button "View reports" -> navigate(ReportsView);
+    }
+
+    cards cols: 4 {
+        stat "Open" vm.OpenCount;
+        stat "Pending" vm.PendingCount variant: warning when(vm.PendingCount > 0);
+        stat "Overdue" vm.OverdueCount variant: danger when(vm.OverdueCount >= 1);
+        stat "Closed" vm.ClosedCount variant: success when(vm.ClosedCount != 0);
+    }
+
+    card "Summary" icon: document {
+        summary {
+            line "Revenue" vm.Revenue format: currency;
+            line "Expenses" vm.Expenses format: currency;
+            line "Margin" vm.Margin format: percent;
+            line "Net" vm.Net format: currency bold;
+        }
+    }
+}

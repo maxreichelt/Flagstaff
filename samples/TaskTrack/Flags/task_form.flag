@@ -1,0 +1,43 @@
+view TaskFormView {
+    bind vm: TaskFormViewModel;
+    onload -> vm.Load;
+
+    toolbar {
+        heading "New Task" icon: add;
+        spacer;
+        button "Cancel" -> navigate(TasksView);
+        button "Save" -> vm.SaveCommand variant: primary enabled(vm.Title != "");
+    }
+
+    stack width: 720 align: left {
+        textbox "Title" vm.Title placeholder: "What needs doing?" hint: "Required";
+
+        row cols: 3 {
+            select "Project" vm.Project items: vm.ProjectOptions;
+            select "Status" vm.Status options: ["Open", "In Progress", "Done"];
+            select "Priority" vm.Priority options: ["Low", "Medium", "High"];
+        }
+
+        row cols: 3 {
+            textbox "Assignee" vm.Assignee placeholder: "Unassigned" readonly;
+            datepicker "Due date" vm.DueDate hint: "Defaults to a week from today";
+            number "Estimate (hours)" vm.EstimateHours min: 0 max: 200 step: 0.5;
+        }
+        button "Pick assignee..." -> vm.OpenPickerCommand icon: people;
+
+        textarea "Notes" vm.Notes placeholder: "Context, links, acceptance criteria";
+
+        row cols: 2 {
+            checkbox "Blocked" vm.IsBlocked;
+            toggle "Notify assignee" vm.NotifyAssignee;
+        }
+    }
+
+    dialog "Pick assignee" message: "Who should own this task?" when(vm.IsPickerOpen) {
+        select "Person" vm.PickedPerson items: vm.People;
+        button "Cancel" -> cancel;
+        button "Assign" -> vm.AssignCommand variant: primary;
+    }
+
+    toast "Task saved." when(vm.ShowSavedToast) variant: success duration: 3000;
+}

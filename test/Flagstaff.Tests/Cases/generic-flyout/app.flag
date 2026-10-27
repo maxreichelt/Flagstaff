@@ -1,0 +1,6 @@
+app DocsApp {
+    nav top {
+        brand "Docs";
+        link "Docs" icon: home -> DocsView;
+    }
+}

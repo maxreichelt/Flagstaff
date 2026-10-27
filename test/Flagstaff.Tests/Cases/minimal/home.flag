@@ -1,0 +1,8 @@
+view HomeView {
+    bind vm: HomeViewModel;
+
+    heading "Welcome" icon: home;
+    text "Hello from Flagstaff.";
+    text vm.Greeting;
+    button "Refresh" -> vm.RefreshCommand;
+}

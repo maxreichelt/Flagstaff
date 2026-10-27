@@ -1,0 +1,6 @@
+app MinimalApp {
+    nav top {
+        brand "Minimal";
+        link "Home" icon: home -> HomeView;
+    }
+}

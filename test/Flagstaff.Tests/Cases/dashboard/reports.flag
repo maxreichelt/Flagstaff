@@ -1,0 +1,9 @@
+view ReportsView {
+    bind vm: ReportsViewModel;
+
+    heading "Reports" icon: document;
+    alert when(vm.IsStale) variant: info {
+        "Report data is more than a day old.";
+        button "Back to overview" -> navigate(OverviewView);
+    }
+}

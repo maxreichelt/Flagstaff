@@ -1,0 +1,35 @@
+view ItemsView {
+    bind vm: ItemsViewModel;
+
+    alert when(vm.HasWarning) variant: warning {
+        "Some items are low on stock.";
+    }
+    alert when(vm.HasError) variant: danger {
+        "Sync failed.";
+        button "Retry" -> vm.RetryCommand;
+    }
+    alert when(vm.HasInfo) variant: info {
+        "New items were imported.";
+    }
+    alert when(vm.IsSynced) variant: success {
+        "All items synced.";
+    }
+
+    toast "Item saved." when(vm.ShowSavedToast) variant: success;
+    toast "Upload failed." when(vm.ShowErrorToast) variant: danger;
+
+    button "Delete" -> vm.RequestDeleteCommand;
+
+    confirm "Delete item?" message: "This cannot be undone." when(vm.IsDeleteVisible) {
+        button "Cancel" -> vm.CancelDeleteCommand;
+        button "Delete" -> vm.ConfirmDeleteCommand;
+    }
+
+    confirm "Rename item" message: "Choose a new name and category." when(vm.IsRenameVisible) {
+        textbox "Name" vm.NewName;
+        select "Category" vm.NewCategory items: vm.Categories;
+        checkbox "Keep history" vm.KeepHistory;
+        button "Cancel" -> vm.CancelRenameCommand;
+        button "Rename" -> vm.ConfirmRenameCommand;
+    }
+}

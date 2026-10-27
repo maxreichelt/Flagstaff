@@ -1,0 +1,26 @@
+view SearchView {
+    bind vm: SearchViewModel;
+
+    row cols: 4 {
+        textbox "Search" vm.Query width: 2*;
+        select "Status" vm.Status width: 160;
+        spacer;
+        button "Go" -> vm.SearchCommand width: auto;
+    }
+
+    row cols: 3 {
+        textbox "Street" vm.Street span: 2;
+        textbox "Zip" vm.Zip width: 120;
+    }
+
+    row cols: 2 wrap {
+        textbox "First" vm.First;
+        textbox "Last" vm.Last;
+        textarea "Notes" vm.Notes span: 2;
+    }
+
+    row {
+        text "Auto columns";
+        text "from children";
+    }
+}

@@ -1,0 +1,6 @@
+app ValuesApp {
+    nav top {
+        brand "Values";
+        link "Home" icon: home -> DetailsView;
+    }
+}

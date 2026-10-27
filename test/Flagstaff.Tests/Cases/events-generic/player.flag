@@ -1,0 +1,23 @@
+view PlayerView {
+    bind vm: PlayerViewModel;
+
+    Slider Value: vm.Volume Minimum: 0 Maximum: 100 on ValueChanged -> vm.VolumeChangedCommand;
+    TextBox Text: vm.Query on TextChanged -> vm.SearchCommand;
+    Border Padding: 12 on Tapped -> navigate(DetailView) {
+        text "Open details";
+    }
+    card "Hover me" {
+        on PointerEntered -> vm.Hover;
+        on PointerExited -> vm.Unhover;
+        text "A card with pointer handlers";
+    }
+    button "Save" -> vm.SaveCommand on Click -> vm.LogCommand;
+    dialog "Edit" when(vm.IsEditing) {
+        textbox "Name" vm.Name on KeyDown -> cancel;
+        button "Close" -> cancel;
+    }
+}
+
+view DetailView {
+    heading "Details";
+}

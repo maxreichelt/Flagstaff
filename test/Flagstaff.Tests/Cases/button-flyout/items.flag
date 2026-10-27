@@ -1,0 +1,11 @@
+view ItemsView {
+    bind vm: ItemsViewModel;
+
+    button "More" Margin: "0,8,0,0" AutomationProperties.Name: "More actions" {
+        Flyout: MenuFlyout {
+            MenuFlyoutItem Text: "Duplicate" -> vm.DuplicateCommand;
+            MenuFlyoutItem Text: "Archive"   -> vm.ArchiveCommand enabled(vm.CanArchive);
+        }
+    }
+    button "Save" icon: save -> vm.SaveCommand Flyout: MenuFlyout { MenuFlyoutItem Text: "Save as"; };
+}

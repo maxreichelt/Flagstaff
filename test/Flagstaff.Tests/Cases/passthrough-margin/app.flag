@@ -1,0 +1,6 @@
+app MarginApp {
+    nav top {
+        brand "Margin";
+        link "Home" icon: home -> FormView;
+    }
+}

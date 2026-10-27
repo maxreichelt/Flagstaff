@@ -1,0 +1,6 @@
+app ToastApp {
+    nav top {
+        brand "Toasts";
+        link "Upload" icon: upload -> UploadView;
+    }
+}

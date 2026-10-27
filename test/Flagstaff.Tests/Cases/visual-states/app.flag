@@ -1,0 +1,6 @@
+app StatesApp {
+    nav top {
+        brand "States";
+        link "Home" icon: home -> ShellView;
+    }
+}

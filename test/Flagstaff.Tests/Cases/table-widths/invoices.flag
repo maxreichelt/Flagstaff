@@ -1,0 +1,11 @@
+view InvoicesView {
+    bind vm: InvoicesViewModel;
+
+    table items: vm.Invoices of Invoice {
+        col "Client" bind: item.Client;
+        col "Qty"    bind: item.Quantity width: auto;
+        col "Rate"   bind: item.Rate format: number(2) width: 120;
+        col "Hours"  bind: item.Hours format: number;
+        col "Amount" bind: item.Amount format: currency width: 140;
+    }
+}

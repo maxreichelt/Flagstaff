@@ -1,0 +1,17 @@
+view PanelView {
+    bind vm: PanelViewModel;
+
+    Page.Resources: {
+        Storyboard key: FadeIn {
+            DoubleAnimation Storyboard.TargetName: ref(Panel) Storyboard.TargetProperty: "Opacity" From: 0 To: 1 Duration: "0:0:0.3";
+        }
+        Storyboard key: Pulse Storyboard.TargetName: ref(Panel) {
+            DoubleAnimation Storyboard.TargetProperty: "(UIElement.Opacity)" To: 0.5 Duration: "0:0:0.15" AutoReverse: true;
+        }
+    }
+
+    button "Fade" -> vm.FadeCommand;
+    Border name: Panel Padding: 16 Background: theme(CardBackgroundFillColorDefaultBrush) {
+        text "Animated panel";
+    }
+}

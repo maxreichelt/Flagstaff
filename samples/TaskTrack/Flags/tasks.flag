@@ -1,0 +1,52 @@
+view TasksView {
+    bind vm: TasksViewModel;
+    onload -> vm.Load;
+
+    toolbar {
+        heading "Tasks" icon: list;
+        spacer;
+        select "Project" vm.ProjectFilter items: vm.ProjectOptions on SelectionChanged -> vm.ApplyFiltersCommand;
+        select "Status" vm.StatusFilter options: ["All statuses", "Open", "In Progress", "Done"] on SelectionChanged -> vm.ApplyFiltersCommand;
+        button "More" icon: more {
+            Flyout: MenuFlyout {
+                MenuFlyoutItem Text: "Export CSV" -> vm.ExportCommand;
+                MenuFlyoutItem Text: "Archive done" -> vm.ArchiveDoneCommand enabled(vm.HasDone);
+            }
+        }
+        button "Add Task" -> navigate(TaskFormView) variant: primary {
+            KeyboardAccelerators: { KeyboardAccelerator Key: "N" Modifiers: "Control"; }
+        }
+    }
+
+    table items: vm.Tasks selected: vm.SelectedTask of TaskRow fill -> vm.EditCommand(item) {
+        col "Title"    bind: item.Title width: 3*;
+        col "Project"  bind: item.Project width: 2*;
+        col "Assignee" bind: item.Assignee width: 110;
+        col "Status"   bind: item.Status width: 110;
+        col "Priority" bind: item.Priority width: 90;
+        col "Due"      bind: item.DueDate format: date width: 110;
+        button "Done"   -> vm.CompleteCommand(item) enabled(item.Status != "Done");
+        button "Delete" -> vm.RequestDeleteCommand(item);
+        ContextFlyout: MenuFlyout {
+            MenuFlyoutItem Text: "Open" -> vm.EditCommand(item);
+            MenuFlyoutItem Text: "Delete" -> vm.RequestDeleteCommand(item);
+        }
+        empty "No tasks match.";
+    }
+
+    dialog "Edit task" message: "Change the status, priority or due date." when(vm.IsEditOpen) {
+        textbox "Title" vm.EditTitle placeholder: "Task title";
+        select "Status" vm.EditStatus options: ["Open", "In Progress", "Done"];
+        select "Priority" vm.EditPriority options: ["Low", "Medium", "High"];
+        datepicker "Due" vm.EditDueDate;
+        button "Cancel" -> vm.CancelEditCommand;
+        button "Save" -> vm.SaveEditCommand variant: primary;
+    }
+
+    confirm "Delete task?" message: "This cannot be undone." when(vm.IsDeleteVisible) variant: danger confirmLabel: "Delete" -> vm.DeleteCommand;
+
+    toast "Task deleted." when(vm.ShowDeletedToast) variant: success duration: 3000;
+    toast "Task updated." when(vm.ShowUpdatedToast) variant: success duration: 3000;
+    toast "Exported the listed tasks to TaskTrack-tasks.csv in your temp folder." when(vm.ShowExportedToast) variant: success duration: 4000;
+    toast "Done tasks archived." when(vm.ShowArchivedToast) variant: success duration: 3000;
+}

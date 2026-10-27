@@ -1,0 +1,1 @@
+﻿Warning profile.flag(24,5): this xaml { } block is expressible as a generic element: Expander

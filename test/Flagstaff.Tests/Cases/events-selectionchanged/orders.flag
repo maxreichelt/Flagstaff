@@ -1,0 +1,10 @@
+view OrdersView {
+    bind vm: OrdersViewModel;
+
+    select "Status" vm.Status items: vm.Statuses on SelectionChanged -> vm.FilterCommand;
+    select "Owner" vm.Owner items: vm.Owners of Person on SelectionChanged -> vm.AssignCommand(item);
+    ListView ItemsSource: vm.Rows on ItemClick -> vm.OpenCommand;
+    list items: vm.Orders of Order on SelectionChanged -> vm.PreviewCommand(item) {
+        text item.Number;
+    }
+}

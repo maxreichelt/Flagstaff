@@ -1,0 +1,2 @@
+﻿Warning shell.flag(21,13): 'TextBox' has a keyword: use 'textbox'
+Warning shell.flag(22,13): 'TextBlock' has a keyword: use 'text'

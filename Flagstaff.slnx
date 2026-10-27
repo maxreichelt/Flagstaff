@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Flagstaff.Build/Flagstaff.Build.csproj" />
+    <Project Path="src/Flagstaff.CLI/Flagstaff.CLI.csproj" />
+    <Project Path="src/Flagstaff.Compiler/Flagstaff.Compiler.csproj" />
+    <Project Path="src/Flagstaff.Stdlib/Flagstaff.Stdlib.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/ManifestGen/ManifestGen.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/Flagstaff.Cli.Tests/Flagstaff.Cli.Tests.csproj" />
+    <Project Path="test/Flagstaff.Tests/Flagstaff.Tests.csproj" />
+  </Folder>
+</Solution>

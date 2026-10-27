@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      nuget:
+        patterns: ['*']
+    ignore:
+      # Flagstaff's own packages track the repo version (Directory.Build.props).
+      - dependency-name: Flagstaff
+      - dependency-name: Flagstaff.*
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

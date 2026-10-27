@@ -1,0 +1,77 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Derive version from tag
+        id: version
+        shell: pwsh
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          $v = $env:TAG.TrimStart('v')
+          if ($v -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$') { throw "Tag '$env:TAG' is not v<semver>." }
+          "version=$v" >> $env:GITHUB_OUTPUT
+          "prerelease=$($v.Contains('-').ToString().ToLower())" >> $env:GITHUB_OUTPUT
+
+      - name: Pack
+        shell: pwsh
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          foreach ($p in 'src/Flagstaff.Stdlib', 'src/Flagstaff.CLI', 'src/Flagstaff.Build') {
+            dotnet pack $p -c Release -o artifacts/packages "/p:Version=$env:VERSION"
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+
+      - name: CLI zip (framework-dependent, run with `dotnet Flagstaff.CLI.dll`)
+        shell: pwsh
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          dotnet publish src/Flagstaff.CLI -c Release -o artifacts/cli /p:UseAppHost=false "/p:Version=$env:VERSION"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-ChildItem artifacts/cli -Filter *.pdb | Remove-Item
+          Compress-Archive -Path artifacts/cli/* -DestinationPath "artifacts/flagstaff-cli-$env:VERSION-net10.0.zip"
+
+      - name: Push to NuGet
+        shell: pwsh
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          foreach ($f in Get-ChildItem artifacts/packages -Filter *.nupkg) {
+            dotnet nuget push $f.FullName --source https://api.nuget.org/v3/index.json --api-key $env:NUGET_API_KEY --skip-duplicate
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+
+      - name: GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          PRERELEASE: ${{ steps.version.outputs.prerelease }}
+        run: |
+          $ghArgs = @('release', 'create', $env:TAG, '--title', $env:TAG, '--generate-notes')
+          if ($env:PRERELEASE -eq 'true') { $ghArgs += '--prerelease' }
+          $ghArgs += (Get-ChildItem artifacts -Filter *.zip).FullName
+          $ghArgs += (Get-ChildItem artifacts/packages -Filter *.nupkg).FullName
+          gh @ghArgs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

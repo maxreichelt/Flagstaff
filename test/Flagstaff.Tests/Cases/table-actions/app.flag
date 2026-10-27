@@ -1,0 +1,6 @@
+app ActionsApp {
+    nav top {
+        brand "ActionsApp";
+        link "Orders" icon: list -> OrdersView;
+    }
+}

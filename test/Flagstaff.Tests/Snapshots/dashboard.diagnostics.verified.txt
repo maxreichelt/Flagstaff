@@ -1,0 +1,1 @@
+﻿Warning overview.flag(3,5): 'onload -> vm.LoadAsync;' is the legacy form; it now generates LoadCommand, which calls OnLoadAsync()

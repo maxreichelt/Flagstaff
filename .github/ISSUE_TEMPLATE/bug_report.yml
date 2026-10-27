@@ -1,0 +1,66 @@
+name: Bug report
+description: The compiler, CLI, or MSBuild integration did something wrong.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. A minimal `.flag` snippet that reproduces the problem is the most useful thing you can include.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead? Include the full diagnostic or error text.
+    validations:
+      required: true
+  - type: textarea
+    id: flag-snippet
+    attributes:
+      label: .flag snippet
+      description: The smallest `app`/`view` that reproduces the problem.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: generated-output
+    attributes:
+      label: Generated output
+      description: The relevant part of the generated `.xaml`/`.g.cs` (`flagstaff compile <dir> -o <out>`), or the output of `flagstaff check --format json`.
+      render: text
+  - type: textarea
+    id: doctor
+    attributes:
+      label: flagstaff doctor output
+      description: Paste the output of `flagstaff doctor`.
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: flagstaff-version
+    attributes:
+      label: Flagstaff version
+      description: From `flagstaff --version`, or the `Flagstaff` package version in your csproj.
+      placeholder: 0.2.0-alpha.1
+    validations:
+      required: true
+  - type: input
+    id: winappsdk-version
+    attributes:
+      label: Windows App SDK version
+      placeholder: "1.8.x"
+    validations:
+      required: true
+  - type: dropdown
+    id: build-host
+    attributes:
+      label: How did you build?
+      options:
+        - flagstaff build
+        - MSBuild.exe / Visual Studio
+        - dotnet build
+        - Only ran flagstaff check/compile
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: Windows version, steps to reproduce, workarounds you found.

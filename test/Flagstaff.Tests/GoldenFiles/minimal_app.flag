@@ -1,0 +1,7 @@
+app TestApp {
+    theme { accent: #c0392b; }
+    nav top {
+        brand "TestApp";
+        link "Home" icon: home -> HomeView;
+    }
+}

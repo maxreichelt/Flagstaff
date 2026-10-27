@@ -1,0 +1,14 @@
+view ShippingView {
+    bind vm: ShippingViewModel;
+
+    list items: vm.PendingOrders of Order {
+        text item.Customer;
+        text item.TrackingNumber;
+        checkbox "Shipped" item.IsShipped;
+    }
+
+    table items: vm.Orders of Order {
+        col "Total" bind: item.Total format: currency;
+        col "Weight" bind: item.WeightKg format: number(1);
+    }
+}

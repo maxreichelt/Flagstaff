@@ -1,0 +1,6 @@
+app EmptyApp {
+    nav top {
+        brand "EmptyApp";
+        link "Tasks" icon: list -> TasksView;
+    }
+}

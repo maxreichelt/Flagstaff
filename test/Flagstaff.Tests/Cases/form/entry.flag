@@ -1,0 +1,36 @@
+view EntryView {
+    bind vm: EntryViewModel;
+
+    toolbar {
+        heading "New Entry" icon: edit;
+        spacer;
+        button "Save" -> vm.SaveCommand;
+    }
+
+    row cols: 2 {
+        textbox "Title" vm.Title;
+        number "Amount" vm.Amount;
+    }
+
+    row cols: 3 {
+        select "Year" vm.Year options: 2019..2026;
+        select "Category" vm.SelectedCategory items: vm.Categories;
+        datepicker "Due" vm.DueDate;
+    }
+
+    textarea "Notes" vm.Notes;
+
+    stack {
+        checkbox "Billable" vm.IsBillable;
+        radio "Personal" vm.IsPersonal;
+        radio "Business" vm.IsBusiness;
+        toggle "Notify me" vm.Notify;
+    }
+
+    filePicker "Attach receipt" -> vm.AttachCommand;
+
+    row cols: 2 {
+        button "Save" -> vm.SaveCommand;
+        button "Cancel" -> vm.CancelCommand;
+    }
+}

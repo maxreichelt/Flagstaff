@@ -1,0 +1,27 @@
+view ShellView {
+    bind vm: ShellViewModel;
+
+    Grid {
+        VisualStateManager.VisualStateGroups: {
+            VisualStateGroup {
+                VisualState name: Wide {
+                    StateTriggers: { AdaptiveTrigger MinWindowWidth: 900; }
+                    Setters: {
+                        Setter Target: ref(Nav).DisplayMode Value: "Inline";
+                        Setter Target: ref(Nav).IsPaneOpen Value: "True";
+                    }
+                }
+            }
+        }
+
+        SplitView name: Nav DisplayMode: Overlay IsPaneOpen: vm.PaneOpen OpenPaneLength: 280 {
+            Pane: StackPanel Padding: 12 {
+                button "Save" name: SaveButton -> vm.SaveCommand;
+            }
+            TextBox name: Query PlaceholderText: "Search";
+            TextBlock Text: ref(Query).Text Margin: 24;
+        }
+
+        TeachingTip Target: ref(SaveButton) Title: "Saved" Subtitle: "Your changes are stored." IsOpen: vm.ShowTip;
+    }
+}

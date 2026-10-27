@@ -1,0 +1,2 @@
+﻿Warning charts.flag(6,5): 'lvc.CartesianChart' is not in the control manifest; its properties are passed through unvalidated
+Warning charts.flag(6,24): binding 'Series: vm.Series' on an unvalidated element infers object; add `of <Type>`

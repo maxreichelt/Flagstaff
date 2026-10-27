@@ -1,0 +1,48 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.nupkg
+*.snupkg
+
+## IDE
+.vs/
+.vscode/
+.idea/
+*.swp
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Build
+out/
+publish/
+artifacts/
+TestResults/
+*.binlog
+
+## Flagstaff generated output
+**/Generated/
+
+## Verify snapshot testing
+*.received.*
+.verified-tmp/
+
+# local secrets (never commit)
+OPENROUTER
+*.secret
+.env
+
+## Benchmark runs (model transcripts, generated apps, per-pair results)
+bench/runs/
+__pycache__/

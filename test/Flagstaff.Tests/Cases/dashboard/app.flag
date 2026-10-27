@@ -1,0 +1,12 @@
+app DashboardApp {
+    theme {
+        accent: #2980b9;
+        backdrop: mica;
+        titlebar: extended;
+    }
+    nav side {
+        brand "Dashboard";
+        link "Overview" icon: home -> OverviewView;
+        link "Reports" icon: document -> ReportsView;
+    }
+}
