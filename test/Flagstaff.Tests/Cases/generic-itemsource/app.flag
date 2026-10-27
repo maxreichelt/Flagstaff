@@ -1,0 +1,6 @@
+app RowsApp {
+    nav top {
+        brand "Rows";
+        link "Rows" icon: home -> RowsView;
+    }
+}

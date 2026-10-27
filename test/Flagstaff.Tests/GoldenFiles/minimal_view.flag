@@ -1,0 +1,29 @@
+view HomeView {
+    bind vm: HomeViewModel;
+
+    toolbar {
+        heading "Home" icon: home;
+        spacer;
+        select vm.Year options: 2019..2026;
+    }
+
+    cards cols: 2 {
+        stat "Pending" vm.PendingCount;
+        stat "Alerts" vm.AlertCount variant: danger when(vm.AlertCount > 0);
+    }
+
+    card "Summary" {
+        summary {
+            line "Total" vm.Total format: currency;
+            line "Net" vm.NetTotal format: currency bold;
+        }
+    }
+
+    textbox "Name" vm.UserName;
+    checkbox "Active" vm.IsActive;
+    button "Save" -> vm.SaveCommand;
+
+    alert when(vm.HasWarning) variant: warning {
+        "Something needs attention.";
+    }
+}

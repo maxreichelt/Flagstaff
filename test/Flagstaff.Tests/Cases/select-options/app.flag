@@ -1,0 +1,6 @@
+app SelectApp {
+    nav top {
+        brand "SelectApp";
+        link "Filters" icon: list -> FiltersView;
+    }
+}

@@ -1,0 +1,14 @@
+view EditorView {
+    bind vm: EditorViewModel;
+
+    textarea "Body" vm.Body;
+    toolbar {
+        button "Save" -> vm.SaveCommand {
+            KeyboardAccelerators: {
+                KeyboardAccelerator Key: "S" Modifiers: "Control";
+            }
+        }
+        spacer;
+        button "Undo" -> vm.UndoCommand KeyboardAccelerators: { KeyboardAccelerator Key: "Z" Modifiers: "Control"; };
+    }
+}

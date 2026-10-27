@@ -1,0 +1,14 @@
+view StatsView {
+    bind vm: StatsViewModel;
+
+    cards cols: 3 {
+        stat "Open" vm.OpenCount;
+        stat "Pending" vm.PendingCount variant: warning;
+        stat "Overdue" vm.OverdueCount variant: danger;
+        stat "Done" vm.DoneCount variant: success;
+        stat "Info" vm.InfoCount variant: info;
+        card "Trend" span: 2 {
+            text vm.TrendText;
+        }
+    }
+}

@@ -1,0 +1,6 @@
+app NotesApp {
+    nav top {
+        brand "Notes";
+        link "Notes" icon: home -> NotesView;
+    }
+}

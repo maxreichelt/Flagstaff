@@ -1,0 +1,28 @@
+view ShellView {
+    bind vm: ShellViewModel;
+
+    VisualStateManager.VisualStateGroups: {
+        VisualStateGroup name: Layout {
+            VisualState name: Wide {
+                StateTriggers: { AdaptiveTrigger MinWindowWidth: 720; }
+                Setters: {
+                    Setter Target: ref(Nav).DisplayMode Value: Inline;
+                    Setter Target: ref(Nav).IsPaneOpen Value: "True";
+                    Setter Target: ref(Summary).Padding Value: "24,16";
+                }
+            }
+            VisualState name: Narrow {
+                StateTriggers: { AdaptiveTrigger MinWindowWidth: 0; }
+            }
+        }
+    }
+
+    SplitView name: Nav DisplayMode: Overlay OpenPaneLength: 280 {
+        Pane: StackPanel Padding: 12 {
+            button "Inbox" -> vm.InboxCommand;
+        }
+        card "Summary" name: Summary {
+            text "Ready";
+        }
+    }
+}

@@ -1,0 +1,6 @@
+app CardsApp {
+    nav top {
+        brand "CardsApp";
+        link "Contacts" icon: list -> ContactsView;
+    }
+}

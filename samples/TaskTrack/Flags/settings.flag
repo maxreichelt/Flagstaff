@@ -1,0 +1,39 @@
+view SettingsView {
+    bind vm: SettingsViewModel;
+    onload -> vm.Load;
+
+    toolbar {
+        heading "Settings" icon: setting;
+        spacer;
+        button "Save" -> vm.SaveCommand;
+    }
+
+    TabView SelectedIndex: vm.SelectedTab IsAddTabButtonVisible: false {
+        TabViewItem Header: "General" IsClosable: false {
+            stack {
+                group "Profile" {
+                    textbox "Display name" vm.DisplayName;
+                }
+
+                group "Notifications" {
+                    toggle "Email me when a task is assigned" vm.EmailOnAssign;
+                    toggle "Daily digest" vm.DailyDigest;
+                    toggle "Highlight overdue tasks" vm.HighlightOverdue;
+                }
+
+                Expander Header: "Advanced" IsExpanded: vm.ShowAdvanced HorizontalAlignment: Stretch HorizontalContentAlignment: Stretch {
+                    Slider Header: "Default estimate for new tasks (hours)" Minimum: 1 Maximum: 40 StepFrequency: 1 Value: vm.DefaultEstimate;
+                    toggle "Show completed tasks in the task list" vm.ShowCompleted;
+                }
+            }
+        }
+        TabViewItem Header: "About" IsClosable: false {
+            stack {
+                text "TaskTrack is a Flagstaff sample app with in-memory data.";
+                link "Flagstaff on GitHub" NavigateUri: "https://github.com/maxreichelt/Flagstaff";
+            }
+        }
+    }
+
+    toast "Settings saved." when(vm.ShowSavedToast) variant: success duration: 3000;
+}

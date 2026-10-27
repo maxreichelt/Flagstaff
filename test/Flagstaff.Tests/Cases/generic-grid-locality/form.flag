@@ -1,0 +1,8 @@
+view FormView {
+    bind vm: FormViewModel;
+
+    Grid RowDefinitions: { RowDefinition Height: "Auto"; RowDefinition Height: "*"; } {
+        textbox "A" vm.A Grid.Row: 1;
+        Button Grid.Row: 0 { "Go"; }
+    }
+}

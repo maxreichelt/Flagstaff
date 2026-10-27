@@ -1,0 +1,6 @@
+app ToolbarApp {
+    nav top {
+        brand "Toolbar";
+        link "Projects" icon: list -> ProjectsView;
+    }
+}

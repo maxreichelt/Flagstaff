@@ -1,0 +1,6 @@
+app DialogApp {
+    nav top {
+        brand "Dialogs";
+        link "Profile" icon: contact -> ProfileView;
+    }
+}

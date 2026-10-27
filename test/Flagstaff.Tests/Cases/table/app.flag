@@ -1,0 +1,6 @@
+app TableApp {
+    nav top {
+        brand "Orders";
+        link "Orders" icon: list -> OrdersView;
+    }
+}

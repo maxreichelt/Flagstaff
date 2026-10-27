@@ -1,0 +1,21 @@
+view ProfileView {
+    bind vm: ProfileViewModel;
+
+    stack name: ProfileForm width: 480 align: left tooltip: "Profile form" {
+        heading vm.DisplayName;
+        textbox "Name" vm.Name placeholder: "Full name" hint: "As on your ID" readonly;
+        textarea "Bio" vm.Bio placeholder: "A few words" tooltip: "Shown publicly";
+        number "Age" vm.Age min: 0 max: 130 step: 1 placeholder: "Age";
+        number "Rating" vm.Rating min: 0.5 max: 5 step: 0.5;
+        datepicker "Born" vm.Born hint: "Optional";
+        separator;
+        spacer;
+        text "Saved" when(vm.IsSaved) align: right;
+        stat "Score" vm.Score variant: success width: 200;
+        row cols: 2 {
+            button "Save" -> vm.SaveCommand variant: primary enabled(vm.CanSave);
+            button "Delete" -> vm.DeleteCommand variant: danger tooltip: "Cannot be undone" align: right;
+        }
+        checkbox "Subscribe" vm.Subscribe name: SubscribeBox;
+    }
+}

@@ -1,0 +1,94 @@
+# AGENTS.md: {{AppName}}
+
+{{AppName}} is a WinUI 3 app whose UI is written in Flagstaff: screens in `Flags/*.flag`, logic in C# partial classes.
+The build compiles the `.flag` files to XAML, code-behind, and CommunityToolkit.Mvvm ViewModel partials in `Generated/`.
+The language reference ships with the tool: `flagstaff spec` (one section: `flagstaff spec --section tables`).
+
+## The loop
+
+Run these from this folder (the one containing `{{AppName}}.csproj`):
+
+```powershell
+flagstaff check --format json     # 1. after every .flag edit; fix until "ok": true
+flagstaff stubs --update          # 2. create ViewModels/*.cs partials, append missing On*Async stubs
+#                                   3. implement the On*Async bodies in ViewModels/*.cs
+flagstaff build --format json     # 4. MSBuild.exe + XAML compiler; fix until "ok": true
+flagstaff run --no-build          # 5. launch the build you just made
+```
+
+With `--format json`, stdout is one JSON object: `{ tool, version, command, ok, diagnostics: [{ severity, code,
+message, file, line, column, hint }], outputs }`. Exit codes: `0` ok, `1` diagnostics or build errors, `2` usage,
+`3` environment (run `flagstaff doctor`), `4` crash.
+
+| Command | Use |
+|---|---|
+| `flagstaff new view <Name> [--label "..."] [--icon name]` | Add a view file, its ViewModel partial, and a nav link |
+| `flagstaff check` | Validate `Flags/*.flag`; writes nothing |
+| `flagstaff stubs --update` | Create or extend the hand-written ViewModel partials |
+| `flagstaff build [-c Debug\|Release] [-p x64\|arm64]` | Build with MSBuild.exe |
+| `flagstaff run [--no-build]` | Build and launch |
+| `flagstaff watch [--run]` | Recompile (and relaunch) on every `.flag` change |
+| `flagstaff doctor` | Check the SDK, MSBuild, and the project layout |
+| `flagstaff spec [--section name] [--list]` | The language reference |
+
+## Rules
+
+1. **Never edit `Generated/`.** Every build overwrites it. Change the `.flag` file instead.
+2. **Logic goes in partial classes:** `ViewModels/HomeViewModel.cs` next to the generated `HomeViewModel.g.cs`.
+3. **Implement commands as** `private partial async Task OnSaveAsync() { ... }`. Don't declare `[RelayCommand]` or
+   `[ObservableProperty]` for names a `.flag` file uses; the generated file declares them.
+4. **DI and startup** go in `App.Services.cs`: `partial void ConfigureServices(IServiceCollection services)` and
+   `partial void OnAppLaunched()`; async startup work goes in `partial void OnAppStarting(List<Func<Task>> steps)`.
+   ViewModel constructors can take registered services.
+5. **Prefer keyword > generic element > `xaml { }`.** Use a lowercase keyword when one exists; otherwise write the
+   WinUI type as a PascalCase generic element (`TreeView name: Nodes;`); `xaml { }` only for what the compiler
+   cannot express yet (control templates). Never invent lowercase keywords.
+6. **Locality rule.** Reference other elements with `ref(Name)` (a `name:` in the same view), never a string.
+   `Grid.Row:`/`Grid.Column:` only on direct children of a generic `Grid` with `RowDefinitions:`/`ColumnDefinitions:`.
+7. **Read each diagnostic's code and hint** (`file(line,col): error FS1001: message [hint: ...]`) before changing
+   anything. FS10xx syntax/schema/layout, FS20xx types and scope, FS30xx generated-XAML lint, FS40xx style. `CS8795`
+   about `On...Async` means a missing implementation: run `flagstaff stubs --update`. Other C# errors against
+   generated members carry a hint naming the `.flag` line that generates the member.
+8. Build with `flagstaff build`, not `dotnet build`, which hides WinUI XAML compiler errors.
+
+## The hand-written half
+
+The generator owns every member a `.flag` file implies. The top of each generated `*.g.cs` / `*View.xaml.cs` lists
+them, `flagstaff check --format json` prints them (`contract`, `itemTypes`), and `flagstaff build` hints C# errors
+against them.
+
+- ViewModel partial: never redeclare a generated property, its `_field`, or a command. Implement exactly the
+  `On*Async` methods `flagstaff stubs` lists. Assign the inferred type: `stat`/`text`/`line` without `format:` are
+  `string` (`format: number(0)` makes a `double`).
+- Page partial (`public sealed partial class XView`): both constructors are generated; never write one. Put page
+  setup in `partial void OnViewCreated() { ... }` (runs once, after `InitializeComponent`), load data with
+  `onload -> vm.Load;`, and reach ViewModel members as `ViewModel.X`.
+- If you declare a generated member yourself, the generator skips its own with warning FS2016 and uses your type;
+  prefer deleting yours. A type that cannot work with the `.flag` usage (a `checkbox` on a `string`) is FS2018, and an
+  `On*Async` whose parameters its command cannot pass (`OnDeleteAsync(Contact)` for `-> vm.Delete`) is FS2019: a
+  command passes the row only as `-> vm.Delete(item)` inside a `table`/`list` of that type.
+- Item types (`of Order`) are `public partial class Order` in `<App>.ViewModels` with only the `item.X` properties
+  the views bind; add members in your own `public partial class Order` in that namespace.
+
+## Conventions
+
+- `bind vm: HomeViewModel;` first, then `onload -> vm.Load;` (implement `OnLoadAsync()`).
+- Commands end in `Command`: `button "Save" -> vm.SaveCommand;` → `OnSaveAsync()`.
+- Bindings are positional: `stat "Open" vm.OpenCount;`, never `value: vm.OpenCount`.
+- `table items: vm.Orders of Order { col "Name" bind: item.Name; button "Edit" -> vm.EditCommand(item); empty "None."; }`
+  → `OnEditAsync(Order item)`. Free-form rows: `list items: vm.Orders of Order { text item.Name; }`.
+  Inside rows use `item.X`, never `vm.X`.
+- Types come from usage: `checkbox` → `bool`, `number` → `double`, `format: currency` → `decimal`,
+  `format: date` → `DateTimeOffset?`, `items: vm.X of T` → `ObservableCollection<T>`, otherwise `string`
+  (`stat "Open" vm.OpenCount format: number(0);` for a number).
+- `when(vm.Count > 0 && !vm.IsBusy)`, `enabled(vm.Selected != null)`.
+- `toast`, `dialog`, and `confirm` need `when(vm.Flag)`; your code sets the flag to show them and clears it to
+  close them. `button "Cancel" -> cancel;` inside a `dialog`/`confirm` clears it for you.
+- Generic elements: `Expander Header: "More" IsExpanded: vm.ShowMore { ... }`. PascalCase keys are XAML properties,
+  on keywords too: `textbox "Name" vm.Name Margin: "0,8";`, `button "More" { Flyout: MenuFlyout { ... } }`.
+- Events: `on TextChanged -> vm.SearchCommand`. References: `Setter Target: ref(Nav).DisplayMode`.
+  Resources: `Page.Resources: { Style key: K TargetType: Border { ... } }`, then `Style: resource(K)`.
+- Every leaf element ends with `;`.
+
+When unsure, run `flagstaff spec --section <name>` (`layout`, `inputs`, `tables`, `lists`, `overlays`,
+`conditions`, `generic`, `locality`, `events`, `resources`, `viewmodel`, `common mistakes`) and follow it exactly.

@@ -1,0 +1,14 @@
+view ItemsView {
+    bind vm: ItemsViewModel;
+
+    list items: vm.Items of Row {
+        card {
+            heading item.Name;
+            Button on Click -> vm.OpenCommand(item) { "Open"; }
+        }
+    }
+    table items: vm.Orders of Order {
+        col "Number" item.Number;
+        button "Archive" on Click -> vm.ArchiveCommand(item);
+    }
+}

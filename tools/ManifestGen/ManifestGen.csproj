@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Reads WinUI 3 metadata (.winmd) and writes src/Flagstaff.Compiler/Manifest/winui-manifest.json.
+       Usage is documented at the top of Program.cs. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Flagstaff.ManifestGen</RootNamespace>
+  </PropertyGroup>
+
+  <!-- Download (not reference) the WindowsAppSDK package so its .winmd files are in the NuGet cache
+       wherever the tool runs, CI included. The version follows Directory.Packages.props. -->
+  <ItemGroup>
+    <PackageDownload Include="Microsoft.WindowsAppSDK" Version="[@(PackageVersion->WithMetadataValue('Identity','Microsoft.WindowsAppSDK')->'%(Version)')]" />
+    <PackageDownload Include="Microsoft.Windows.SDK.NET.Ref" Version="[@(PackageVersion->WithMetadataValue('Identity','Microsoft.Windows.SDK.NET.Ref')->'%(Version)')]" />
+  </ItemGroup>
+
+</Project>

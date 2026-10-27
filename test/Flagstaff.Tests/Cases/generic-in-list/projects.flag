@@ -1,0 +1,10 @@
+view ProjectsView {
+    bind vm: ProjectsViewModel;
+
+    list items: vm.Projects of Project {
+        Expander Header: item.Name IsExpanded: item.IsOpen {
+            text item.Notes;
+        }
+        Button Content: "Open" -> vm.OpenCommand(item);
+    }
+}

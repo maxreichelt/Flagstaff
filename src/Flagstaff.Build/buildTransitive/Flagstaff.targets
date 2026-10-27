@@ -1,0 +1,4 @@
+<!-- Transitive entry point: same content as build/Flagstaff.targets. -->
+<Project>
+  <Import Project="$(MSBuildThisFileDirectory)..\build\Flagstaff.targets" />
+</Project>

@@ -1,0 +1,23 @@
+view DashView {
+    bind vm: DashViewModel;
+
+    Page.Resources: {
+        Style key: CompactStat TargetType: Border {
+            Setter Property: Padding Value: "12,8";
+            Setter Property: Background Value: theme(AccentFillColorDefaultBrush);
+        }
+        Style key: CompactStatWide TargetType: Border BasedOn: resource(CompactStat) {
+            Setter Property: MinWidth Value: 240;
+        }
+        Style TargetType: Button {
+            Setter Property: CornerRadius Value: 8;
+        }
+        SolidColorBrush key: Accent Color: "#2563eb";
+    }
+
+    stat "Total" vm.Total Style: resource(CompactStat);
+    stat "Open" vm.Open Style: resource(CompactStatWide);
+    Border BorderBrush: resource(Accent) BorderThickness: 1 {
+        button "Refresh" -> vm.RefreshCommand;
+    }
+}

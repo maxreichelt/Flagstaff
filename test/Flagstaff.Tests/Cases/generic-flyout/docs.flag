@@ -1,0 +1,19 @@
+view DocsView {
+    bind vm: DocsViewModel;
+
+    Button Content: "More" AutomationProperties.Name: "More actions" Margin: "0,8,0,0" {
+        Flyout: MenuFlyout {
+            Placement: Bottom;
+            MenuFlyoutItem Text: "Duplicate" -> vm.DuplicateCommand;
+            MenuFlyoutItem Text: "Archive" -> vm.ArchiveCommand enabled(vm.CanArchive);
+            MenuFlyoutSeparator;
+            ToggleMenuFlyoutItem Text: "Pinned" IsChecked: vm.IsPinned;
+        }
+    }
+
+    StackPanel Orientation: Horizontal Spacing: 8 {
+        AppBarButton Label: "Save" -> vm.SaveCommand Icon: SymbolIcon Symbol: Save;
+        AppBarButton Label: "Undo" Icon: Undo -> vm.UndoCommand;
+        text "Saved" when(vm.IsSaved);
+    }
+}

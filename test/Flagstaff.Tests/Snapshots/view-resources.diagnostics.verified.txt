@@ -1,0 +1,1 @@
+﻿Warning DashView.xaml(26,32): StaticResource 'CompactStat' is not in the known resource set

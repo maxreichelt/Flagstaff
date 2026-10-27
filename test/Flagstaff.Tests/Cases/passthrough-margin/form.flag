@@ -1,0 +1,14 @@
+view FormView {
+    bind vm: FormViewModel;
+
+    textbox "Name" vm.Name Margin: "0,0,0,12" MaxLength: 80;
+    textarea "Notes" vm.Notes AutomationProperties.Name: "Notes" AutomationProperties.HelpText: "Free text";
+    toggle "Active" vm.IsActive Margin: 8;
+    text "Hint" Foreground: theme(TextFillColorSecondaryBrush) TextWrapping: wrap;
+    card "Details" Padding: "24" CornerRadius: "8" {
+        text vm.Summary;
+    }
+    stack Spacing: 16 ToolTipService.Placement: "Bottom" {
+        checkbox "Agree" vm.Agree IsThreeState: false;
+    }
+}

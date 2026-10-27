@@ -1,0 +1,4 @@
+# Verify snapshots: keep LF, UTF-8 so they compare identically on every OS
+*.verified.txt text eol=lf working-tree-encoding=UTF-8
+*.verified.xaml text eol=lf working-tree-encoding=UTF-8
+*.verified.cs text eol=lf working-tree-encoding=UTF-8

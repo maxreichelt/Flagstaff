@@ -1,0 +1,74 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The `Flagstaff` build package. No assemblies of its own: it ships
+      build/ + buildTransitive/   Flagstaff.props / Flagstaff.targets (auto-imported by NuGet)
+      tools/net10.0/              framework-dependent publish of Flagstaff.CLI (run via `dotnet`)
+    and depends on Flagstaff.Stdlib (same version), CommunityToolkit.Mvvm and
+    Microsoft.Extensions.DependencyInjection, so a WinUI 3 app needs only
+    <PackageReference Include="Flagstaff" /> plus Microsoft.WindowsAppSDK.
+    `dotnet pack` of this project publishes the CLI and produces the package in one step.
+  -->
+
+  <PropertyGroup>
+    <!-- Matches Flagstaff.Stdlib so the Stdlib project reference becomes a package dependency. -->
+    <TargetFramework>net10.0-windows10.0.22621.0</TargetFramework>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageId>Flagstaff</PackageId>
+    <Description>Flagstaff: an LLM-friendly DSL (.flag) that transpiles to WinUI 3 XAML and CommunityToolkit.Mvvm scaffolding. Adds MSBuild integration that compiles Flags/*.flag before XAML compilation.</Description>
+    <PackageTags>winui;xaml;dsl;mvvm;msbuild;flagstaff</PackageTags>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <!-- WindowsAppSDK flows in transitively via Flagstaff.Stdlib; use the MSIX PRI tooling so its
+         targets load under dotnet (Core) MSBuild, as Flagstaff.Stdlib does. -->
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <EnableCoreMrtTooling>false</EnableCoreMrtTooling>
+    <IncludeSymbols>false</IncludeSymbols>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <!-- NU5128: no lib/ref folder is intentional; this package only carries build logic and tools. -->
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_FlagstaffPackCli</TargetsForTfmSpecificContentInPackage>
+    <_FlagstaffCliPublishDir>$(MSBuildProjectDirectory)\$(BaseIntermediateOutputPath)cli-publish\$(Configuration)\</_FlagstaffCliPublishDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Becomes the Flagstaff.Stdlib package dependency (same version). -->
+    <ProjectReference Include="..\Flagstaff.Stdlib\Flagstaff.Stdlib.csproj" />
+    <!-- Build ordering only; the CLI is bundled under tools/, not a package dependency. -->
+    <ProjectReference Include="..\Flagstaff.CLI\Flagstaff.CLI.csproj"
+                      ReferenceOutputAssembly="false"
+                      SetTargetFramework="TargetFramework=net10.0"
+                      PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="build\Flagstaff.props" Pack="true" PackagePath="build\" />
+    <None Include="build\Flagstaff.targets" Pack="true" PackagePath="build\" />
+    <None Include="buildTransitive\Flagstaff.props" Pack="true" PackagePath="buildTransitive\" />
+    <None Include="buildTransitive\Flagstaff.targets" Pack="true" PackagePath="buildTransitive\" />
+  </ItemGroup>
+
+  <Target Name="_FlagstaffPublishCli">
+    <RemoveDir Directories="$(_FlagstaffCliPublishDir)" />
+    <MSBuild Projects="..\Flagstaff.CLI\Flagstaff.CLI.csproj"
+             Targets="Publish"
+             Properties="Configuration=$(Configuration);TargetFramework=net10.0;PublishDir=$(_FlagstaffCliPublishDir);UseAppHost=false;SelfContained=false;Version=$(Version)" />
+  </Target>
+
+  <Target Name="_FlagstaffPackCli" DependsOnTargets="_FlagstaffPublishCli">
+    <ItemGroup>
+      <_FlagstaffCliFile Include="$(_FlagstaffCliPublishDir)**\*" Exclude="$(_FlagstaffCliPublishDir)**\*.pdb" />
+      <TfmSpecificPackageFile Include="@(_FlagstaffCliFile)" PackagePath="tools\net10.0\%(RecursiveDir)" />
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

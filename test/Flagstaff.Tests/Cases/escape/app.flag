@@ -1,0 +1,6 @@
+app EscapeApp {
+    nav side {
+        brand "Escape";
+        link "Profile" icon: people -> ProfileView;
+    }
+}

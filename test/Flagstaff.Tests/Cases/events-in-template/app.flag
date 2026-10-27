@@ -1,0 +1,6 @@
+app EventsApp {
+    nav top {
+        brand "Events";
+        link "Items" icon: list -> ItemsView;
+    }
+}

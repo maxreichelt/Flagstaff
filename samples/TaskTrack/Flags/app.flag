@@ -1,0 +1,12 @@
+app TaskTrack {
+    theme {
+        accent: #2563eb;
+    }
+    nav side {
+        brand "TaskTrack";
+        link "Dashboard" icon: home     -> DashboardView;
+        link "Tasks"     icon: list     -> TasksView;
+        link "Projects"  icon: library  -> ProjectsView;
+        link "Settings"  icon: setting  -> SettingsView;
+    }
+}

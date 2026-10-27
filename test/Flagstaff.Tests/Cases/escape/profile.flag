@@ -1,0 +1,29 @@
+view ProfileView {
+    bind vm: ProfileViewModel;
+
+    split {
+        column {
+            image vm.AvatarUrl;
+            badge vm.Status;
+        }
+        column {
+            stat "Messages" vm.MessageCount;
+            badge vm.MessageCount;
+            progress vm.Completion;
+            spinner;
+        }
+    }
+
+    separator;
+
+    group "Admin" when(vm.IsAdmin) {
+        text "Administrative tools";
+        button "Reset" -> vm.ResetCommand;
+    }
+
+    xaml {
+        <Expander Header="Advanced" Margin="0,8,0,0">
+            <TreeView x:Name="FolderTree" />
+        </Expander>
+    }
+}

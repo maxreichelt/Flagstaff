@@ -1,0 +1,24 @@
+view InboxView {
+    bind vm: InboxViewModel;
+
+    toolbar {
+        heading "Inbox" icon: mail;
+        spacer;
+        button "Refresh" -> vm.RefreshCommand;
+    }
+
+    text "Messages arrive here.";
+
+    card "Messages" icon: mail fill {
+        text vm.Summary;
+        table items: vm.Messages of Message fill {
+            col "From" bind: item.Sender;
+            col "Subject" bind: item.Subject;
+        }
+    }
+
+    row cols: 2 {
+        button "Archive" -> vm.ArchiveCommand;
+        button "Delete" -> vm.DeleteCommand variant: danger;
+    }
+}

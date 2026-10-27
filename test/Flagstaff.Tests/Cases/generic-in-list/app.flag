@@ -1,0 +1,6 @@
+app ProjectsApp {
+    nav top {
+        brand "Projects";
+        link "Projects" icon: home -> ProjectsView;
+    }
+}

@@ -1,0 +1,19 @@
+# Flagstaff
+
+> Flagstaff is a compiled UI language (.flag) for native Windows apps. It generates the idiomatic WinUI 3 XAML and CommunityToolkit.Mvvm ViewModel code you would otherwise write by hand. Hand-written logic lives in partial classes (`private partial async Task OnSaveAsync()`), and the generated output is overwritten on every compile.
+
+Keywords cover the common 80% of business UI; every other WinUI control is a PascalCase generic element in the same syntax, checked against a control manifest. Prefer keyword > generic element > `xaml { }`. Locality rule: element references are `ref(Name)`, never strings, and `Grid.Row` is checked against the parent `Grid`.
+
+Flagstaff runs on Windows only and targets WinUI 3 (Windows App SDK) only. Install the CLI with `dotnet tool install -g Flagstaff.CLI` and start an app with `flagstaff init MyApp --agent claude`. Agents should use the loop `flagstaff check --format json` → `flagstaff stubs --update` → implement `On*Async` bodies → `flagstaff build --format json` → `flagstaff run`. `flagstaff spec --section <name>` prints one section of the language reference.
+
+## Docs
+
+- [Language reference (LANG.md)](https://github.com/maxreichelt/Flagstaff/blob/main/LANG.md): every keyword, generic-element rule, property, locality rule, event, resource form, condition, type-inference rule, diagnostic code, and common mistake
+- [AGENTS.md](https://github.com/maxreichelt/Flagstaff/blob/main/AGENTS.md): the workflow, rules, and common mistakes for coding agents
+- [README](https://github.com/maxreichelt/Flagstaff/blob/main/README.md): overview, example, quick start, how it works
+
+## Optional
+
+- [CHANGELOG](https://github.com/maxreichelt/Flagstaff/blob/main/CHANGELOG.md): release history
+- [Grammar (EBNF)](https://github.com/maxreichelt/Flagstaff/blob/main/docs/grammar.ebnf): the parser's grammar
+- [Building WinUI 3 apps](https://github.com/maxreichelt/Flagstaff/blob/main/docs/building.md): the MSBuild.exe rule, platforms, debugging

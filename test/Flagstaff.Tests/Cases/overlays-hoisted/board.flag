@@ -1,0 +1,27 @@
+view BoardView {
+    bind vm: BoardViewModel;
+
+    toolbar {
+        heading "Board";
+        spacer;
+        button "Rename" -> vm.OpenRenameCommand;
+    }
+
+    card "Tasks" {
+        text "Overlays written inside cards and groups render in the page overlay layer.";
+        toast "Task archived." when(vm.ShowArchivedToast) variant: info;
+        group "Danger zone" {
+            button "Delete all" -> vm.RequestDeleteAllCommand;
+            confirm "Delete all tasks?" message: "This removes every task." when(vm.IsDeleteAllVisible) variant: danger confirmLabel: "Delete" -> vm.DeleteAllCommand;
+        }
+    }
+
+    stack {
+        dialog "Rename board" when(vm.IsRenameVisible) {
+            textbox "Name" vm.BoardName;
+            button "Cancel" -> vm.CancelRenameCommand;
+            button "Save" -> vm.SaveNameCommand;
+        }
+        toast "Board renamed." when(vm.ShowRenamedToast) variant: success duration: 2500;
+    }
+}

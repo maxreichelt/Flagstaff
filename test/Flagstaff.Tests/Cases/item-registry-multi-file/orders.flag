@@ -1,0 +1,9 @@
+view OrdersView {
+    bind vm: OrdersViewModel;
+
+    table items: vm.Orders of Order {
+        col "Customer" bind: item.Customer;
+        col "Total"    bind: item.Total format: currency;
+        col "Placed"   bind: item.PlacedOn format: date;
+    }
+}

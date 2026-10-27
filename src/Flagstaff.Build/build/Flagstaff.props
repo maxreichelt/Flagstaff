@@ -1,0 +1,41 @@
+<!--
+  Flagstaff.props - imported early by consuming projects.
+  Sets sensible defaults for WinUI 3 apps that use Flagstaff.
+
+  Delivered by the `Flagstaff` NuGet package (build/ and buildTransitive/),
+  or imported by path from src/Flagstaff.Stdlib/build/Flagstaff.props when
+  working against a source checkout.
+
+  Properties (all overridable; set them before this import or in the project):
+    FlagstaffInputDir      Folder with .flag sources (default: Flags)
+    FlagstaffOutputDir     Folder for generated XAML/C# (default: Generated)
+    FlagstaffNamespace     Root namespace for generated code (default: $(RootNamespace))
+    FlagstaffCliPath       Command used to invoke the CLI. Defaults (in Flagstaff.targets)
+                           to the CLI bundled in the package, or `flagstaff` (global tool)
+                           when imported from a source checkout.
+    FlagstaffFromPackage   Convention for samples/projects that can consume Flagstaff either
+                           from source (ProjectReference + path imports) or from the
+                           `Flagstaff` NuGet package. The project itself branches on it, e.g.
+                             msbuild App.csproj /restore /p:FlagstaffFromPackage=true
+                           Defaults to false. Flagstaff's own files never change behavior on it;
+                           _FlagstaffImportedFromPackage tells you which copy was actually imported.
+-->
+<Project>
+
+  <PropertyGroup>
+    <FlagstaffOutputDir Condition="'$(FlagstaffOutputDir)' == ''">Generated</FlagstaffOutputDir>
+    <FlagstaffInputDir Condition="'$(FlagstaffInputDir)' == ''">Flags</FlagstaffInputDir>
+    <FlagstaffNamespace Condition="'$(FlagstaffNamespace)' == ''">$(RootNamespace)</FlagstaffNamespace>
+    <FlagstaffFromPackage Condition="'$(FlagstaffFromPackage)' == ''">false</FlagstaffFromPackage>
+    <_FlagstaffBundledCli>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '..', 'tools', 'net10.0', 'Flagstaff.CLI.dll'))</_FlagstaffBundledCli>
+    <_FlagstaffImportedFromPackage Condition="Exists('$(_FlagstaffBundledCli)')">true</_FlagstaffImportedFromPackage>
+    <_FlagstaffImportedFromPackage Condition="'$(_FlagstaffImportedFromPackage)' == ''">false</_FlagstaffImportedFromPackage>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <EnableMsixTooling Condition="'$(EnableMsixTooling)' == ''">true</EnableMsixTooling>
+    <!-- Turn off the Visual Studio-dependent MrtCore PRI tooling; the MSIX NuGet targets generate the PRI instead -->
+    <EnableCoreMrtTooling Condition="'$(EnableMsixTooling)' == 'true'">false</EnableCoreMrtTooling>
+  </PropertyGroup>
+
+</Project>

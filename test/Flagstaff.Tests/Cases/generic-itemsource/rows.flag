@@ -1,0 +1,13 @@
+view RowsView {
+    bind vm: RowsViewModel;
+
+    // of T on a WinUI items control: ObservableCollection<Row>, Row?, and the body is the ItemTemplate.
+    ListView ItemsSource: vm.Rows of Row SelectedItem: vm.Selected on SelectionChanged -> vm.PickCommand(item) {
+        text item.Title;
+        checkbox "Done" item.IsDone;
+        button "Open" -> vm.OpenCommand(item);
+    }
+
+    // Without of T: an untyped collection.
+    GridView ItemsSource: vm.Tiles;
+}

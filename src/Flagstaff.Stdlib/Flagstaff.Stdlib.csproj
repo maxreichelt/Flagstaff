@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows10.0.22621.0</TargetFramework>
+    <UseWinUI>true</UseWinUI>
+    <!-- PRI generation via the WinAppSDK MSIX tooling; works under both dotnet (Core) MSBuild and VS MSBuild.
+         Not a platform restriction: the library builds and packs as AnyCPU. -->
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <EnableCoreMrtTooling>false</EnableCoreMrtTooling>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageId>Flagstaff.Stdlib</PackageId>
+    <Description>Flagstaff standard library for WinUI 3: default styles (ms-appx:///Flagstaff.Stdlib/Styles.xaml) used by Flagstaff-generated XAML.</Description>
+    <PackageTags>winui;xaml;flagstaff;dsl</PackageTags>
+    <!-- dotnet pack ships the .dll and Styles.xaml but not the PRI index; add it (see target below). -->
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);_FlagstaffStdlibPackPri</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" />
+  </ItemGroup>
+
+  <!--
+    Consumers resolve ms-appx:///Flagstaff.Stdlib/Styles.xaml through the app's resources.pri,
+    which WinAppSDK builds by merging the .pri files found next to referenced assemblies.
+    Pack lib/<tfm>/Flagstaff.Stdlib.pri alongside the dll so that merge happens for NuGet consumers.
+  -->
+  <Target Name="_FlagstaffStdlibPackPri">
+    <ItemGroup>
+      <BuildOutputInPackage Include="$(OutDir)$(TargetName).pri" />
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

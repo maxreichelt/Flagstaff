@@ -1,0 +1,7 @@
+use "LiveChartsCore.SkiaSharpView.WinUI" as lvc;
+
+view ChartsView {
+    bind vm: ChartsViewModel;
+
+    lvc.CartesianChart Series: vm.Series Height: 400;
+}

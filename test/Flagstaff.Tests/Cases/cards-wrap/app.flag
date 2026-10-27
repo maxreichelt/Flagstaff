@@ -1,0 +1,6 @@
+app CardsApp {
+    nav top {
+        brand "Cards";
+        link "Stats" icon: home -> StatsView;
+    }
+}

@@ -1,0 +1,14 @@
+view DashView {
+    bind vm: DashViewModel;
+
+    Page.Resources: {
+        Style TargetType: Button {
+            Setter Property: "Padding" Value: "12,8";
+        }
+    }
+    VisualStateManager.VisualStateGroups: {
+        VisualStateGroup name: Layout;
+    }
+    stat "Total" vm.Total Style: resource(CompactStat);
+    button "Refresh" -> vm.RefreshCommand;
+}

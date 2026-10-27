@@ -1,0 +1,6 @@
+app ResourcesApp {
+    nav top {
+        brand "Resources";
+        link "Home" icon: home -> DashView;
+    }
+}

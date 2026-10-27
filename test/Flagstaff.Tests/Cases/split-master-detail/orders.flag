@@ -1,0 +1,30 @@
+view OrdersView {
+    bind vm: OrdersViewModel;
+
+    toolbar {
+        heading "Orders" icon: list;
+        spacer;
+        button "New" -> vm.NewCommand variant: primary;
+    }
+
+    split {
+        card "Weighted" width: 2* {
+            text "Two thirds";
+        }
+        card "Auto" width: auto {
+            text "Sized to content";
+        }
+    }
+
+    split fill {
+        table items: vm.Orders selected: vm.Selected of Order width: 320 {
+            col "Customer" bind: item.Customer;
+            col "Total" bind: item.Total format: currency;
+        }
+        group "Details" fill {
+            heading vm.SelectedTitle;
+            textbox "Customer" vm.Customer;
+            textarea "Notes" vm.Notes fill;
+        }
+    }
+}

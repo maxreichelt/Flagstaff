@@ -1,0 +1,72 @@
+<!--
+  Flagstaff.targets - imported late by consuming projects.
+  Runs the Flagstaff transpiler and configures XAML compilation.
+-->
+<Project>
+
+  <PropertyGroup>
+    <!-- Package props are imported before the project body sets RootNamespace; resolve it here too. -->
+    <FlagstaffNamespace Condition="'$(FlagstaffNamespace)' == ''">$(RootNamespace)</FlagstaffNamespace>
+    <FlagstaffNamespace Condition="'$(FlagstaffNamespace)' == ''">$(MSBuildProjectName)</FlagstaffNamespace>
+    <!-- Default CLI: the framework-dependent CLI bundled in the package (tools/net10.0),
+         else the `flagstaff` global tool. Always overridable via FlagstaffCliPath. -->
+    <FlagstaffCliPath Condition="'$(FlagstaffCliPath)' == '' And '$(_FlagstaffImportedFromPackage)' == 'true'">dotnet "$(_FlagstaffBundledCli)"</FlagstaffCliPath>
+    <FlagstaffCliPath Condition="'$(FlagstaffCliPath)' == ''">flagstaff</FlagstaffCliPath>
+    <!-- FS2016/FS2017 report a generated member the hand-written C# also declares (the generator skipped it):
+         advice, never a build failure, even with -warnaserror or MSBuildTreatWarningsAsErrors. -->
+    <MSBuildWarningsNotAsErrors>$(MSBuildWarningsNotAsErrors);FS2016;FS2017</MSBuildWarningsNotAsErrors>
+  </PropertyGroup>
+
+  <!-- Warn when building with dotnet build (Core MSBuild) which swallows XAML errors -->
+  <Target Name="FlagstaffCheckBuildHost" BeforeTargets="MarkupCompilePass1">
+    <Warning Condition="'$(MSBuildRuntimeType)' == 'Core'"
+      Text="[Flagstaff] Building with 'dotnet build' (Core MSBuild). WinUI XAML compiler errors may be silently swallowed. For reliable error reporting, build with Visual Studio or 'msbuild.exe' from a VS Developer Command Prompt." />
+  </Target>
+
+  <!--
+    Run the Flagstaff transpiler, then add its output to the build.
+
+    Hooked early (PrepareForBuild) as well as before MarkupCompilePass1: the SDK's **/*.cs and
+    **/*.xaml globs are evaluated before this target writes $(FlagstaffOutputDir), and the XAML
+    compiler targets are skipped entirely when @(Page)/@(ApplicationDefinition) are empty, so a
+    clean clone (Generated/ is git-ignored) would otherwise build with no generated code (CS0759).
+    Remove-then-Include keeps items unique whether or not the files already existed at evaluation
+    time, or another target (e.g. a project-level workaround) already added them.
+  -->
+  <Target Name="FlagstaffCompile"
+          BeforeTargets="PrepareForBuild;MarkupCompilePass1"
+          Condition="Exists('$(MSBuildProjectDirectory)\$(FlagstaffInputDir)')">
+
+    <PropertyGroup>
+      <_FlagstaffFullCmd>$(FlagstaffCliPath) compile "$(MSBuildProjectDirectory)\$(FlagstaffInputDir)" -o "$(MSBuildProjectDirectory)\$(FlagstaffOutputDir)" --namespace $(FlagstaffNamespace)</_FlagstaffFullCmd>
+    </PropertyGroup>
+
+    <Exec Command="$(_FlagstaffFullCmd)"
+          ConsoleToMsBuild="true"
+          StandardErrorImportance="high" />
+
+    <ItemGroup>
+      <_FlagstaffGeneratedXaml Include="$(FlagstaffOutputDir)\**\*.xaml" Exclude="$(FlagstaffOutputDir)\App.xaml" />
+      <_FlagstaffGeneratedCs Include="$(FlagstaffOutputDir)\**\*.cs" />
+
+      <Page Remove="@(_FlagstaffGeneratedXaml);$(FlagstaffOutputDir)\App.xaml" />
+      <Page Include="@(_FlagstaffGeneratedXaml)" Generator="MSBuild:Compile" XamlRuntime="$(DefaultXamlRuntime)" />
+
+      <ApplicationDefinition Remove="$(FlagstaffOutputDir)\App.xaml" />
+      <ApplicationDefinition Include="$(FlagstaffOutputDir)\App.xaml"
+                             Generator="MSBuild:Compile" XamlRuntime="$(DefaultXamlRuntime)"
+                             Condition="Exists('$(MSBuildProjectDirectory)\$(FlagstaffOutputDir)\App.xaml')" />
+
+      <Compile Remove="@(_FlagstaffGeneratedCs)" />
+      <Compile Include="@(_FlagstaffGeneratedCs)" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Evaluation-time swap (helps IDE/design-time when Generated\App.xaml already exists):
+       Generated\App.xaml is the ApplicationDefinition, not a Page. -->
+  <ItemGroup Condition="Exists('$(MSBuildProjectDirectory)\$(FlagstaffOutputDir)\App.xaml')">
+    <ApplicationDefinition Include="$(FlagstaffOutputDir)\App.xaml" Generator="MSBuild:Compile" XamlRuntime="$(DefaultXamlRuntime)" />
+    <Page Remove="$(FlagstaffOutputDir)\App.xaml" />
+  </ItemGroup>
+
+</Project>

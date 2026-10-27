@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    TaskTrack: Flagstaff sample app.
+    Default mode builds against the in-repo compiler and Stdlib.
+    Package mode (/p:FlagstaffFromPackage=true) consumes the Flagstaff NuGet package instead;
+    NuGet imports the package's build props and targets automatically.
+  -->
+
+  <Import Project="..\..\src\Flagstaff.Stdlib\build\Flagstaff.props" Condition="'$(FlagstaffFromPackage)' != 'true'" />
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.22621.0</TargetFramework>
+    <RootNamespace>TaskTrack</RootNamespace>
+    <AssemblyName>TaskTrack</AssemblyName>
+    <UseWinUI>true</UseWinUI>
+    <Platforms>x64;ARM64</Platforms>
+    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+    <WindowsPackageType>None</WindowsPackageType>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(FlagstaffFromPackage)' != 'true'">
+    <FlagstaffCliPath>dotnet run --project "$(MSBuildThisFileDirectory)..\..\src\Flagstaff.CLI" --</FlagstaffCliPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FlagstaffFromPackage)' != 'true'">
+    <ProjectReference Include="..\..\src\Flagstaff.Stdlib\Flagstaff.Stdlib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(FlagstaffFromPackage)' == 'true'">
+    <PackageReference Include="Flagstaff" />
+  </ItemGroup>
+
+  <Import Project="..\..\src\Flagstaff.Stdlib\build\Flagstaff.targets" Condition="'$(FlagstaffFromPackage)' != 'true'" />
+
+</Project>

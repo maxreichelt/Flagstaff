@@ -1,0 +1,6 @@
+app FormApp {
+    nav top {
+        brand "Form";
+        link "Form" icon: home -> FormView;
+    }
+}

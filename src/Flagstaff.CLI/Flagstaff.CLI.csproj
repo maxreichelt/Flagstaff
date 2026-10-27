@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Flagstaff.Cli</RootNamespace>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>flagstaff</ToolCommandName>
+    <!-- Roslyn ships ~13 resource languages; English diagnostics are enough for a syntax scan. -->
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageId>Flagstaff.CLI</PackageId>
+    <Description>Command-line tool for Flagstaff, an LLM-friendly DSL that transpiles to WinUI 3 XAML: check, compile, stubs, build, run, watch, init, new view, doctor, spec.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Flagstaff.Compiler\Flagstaff.Compiler.csproj" />
+    <PackageReference Include="System.CommandLine" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <InternalsVisibleTo Include="Flagstaff.Cli.Tests" />
+  </ItemGroup>
+
+  <!-- The language reference ('flagstaff spec') and the init / new view templates ship inside the tool. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\LANG.md" LogicalName="Flagstaff.LANG.md" Link="LANG.md" />
+    <Compile Remove="Templates\**" />
+    <None Remove="Templates\**" />
+    <EmbeddedResource Include="Templates\**\*.tmpl" LogicalName="Templates/%(RecursiveDir)%(Filename)%(Extension)" WithCulture="false" />
+  </ItemGroup>
+
+  <!-- Stamp the centrally pinned Microsoft.WindowsAppSDK version so 'flagstaff init' references the same one. -->
+  <Target Name="FlagstaffStampWindowsAppSdkVersion" BeforeTargets="GetAssemblyAttributes">
+    <ItemGroup>
+      <_FlagstaffWasdk Include="@(PackageVersion)" Condition="'%(Identity)' == 'Microsoft.WindowsAppSDK'" />
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>WindowsAppSdkVersion</_Parameter1>
+        <_Parameter2>@(_FlagstaffWasdk->'%(Version)')</_Parameter2>
+      </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

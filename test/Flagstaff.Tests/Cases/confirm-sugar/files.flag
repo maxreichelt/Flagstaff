@@ -1,0 +1,12 @@
+view FilesView {
+    bind vm: FilesViewModel;
+
+    button "Delete file" -> vm.RequestDeleteCommand;
+    button "Discard" -> vm.RequestDiscardCommand;
+
+    confirm "Delete file?" message: "This cannot be undone." when(vm.IsDeleteVisible) variant: danger confirmLabel: "Delete" -> vm.DeleteCommand;
+    confirm "Discard changes?" when(vm.IsDiscardVisible) -> vm.DiscardCommand;
+    confirm "Move file" message: "Pick a destination." when(vm.IsMoveVisible) confirmLabel: "Move" -> vm.MoveCommand {
+        textbox "Destination" vm.Destination;
+    }
+}

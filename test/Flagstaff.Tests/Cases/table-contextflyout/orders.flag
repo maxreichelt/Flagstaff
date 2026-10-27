@@ -1,0 +1,14 @@
+view OrdersView {
+    bind vm: OrdersViewModel;
+
+    table items: vm.Orders of Order {
+        col "Client" bind: item.Client;
+        ContextFlyout: MenuFlyout {
+            MenuFlyoutItem Text: "Open" -> vm.OpenCommand(item);
+            MenuFlyoutItem Text: "Mark" -> vm.MarkCommand(item) enabled(item.CanMark);
+        }
+    }
+    card "Notes" ContextFlyout: MenuFlyout { MenuFlyoutItem Text: "Clear"; } {
+        text vm.Notes;
+    }
+}

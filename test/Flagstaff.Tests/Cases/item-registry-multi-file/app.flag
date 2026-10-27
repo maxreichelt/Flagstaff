@@ -1,0 +1,6 @@
+app RegistryApp {
+    nav top {
+        brand "RegistryApp";
+        link "Orders" icon: list -> OrdersView;
+    }
+}

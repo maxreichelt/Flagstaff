@@ -1,0 +1,6 @@
+app StyleApp {
+    nav top {
+        brand "Styles";
+        link "Home" icon: home -> DashView;
+    }
+}

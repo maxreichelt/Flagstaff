@@ -1,0 +1,12 @@
+view ContactsView {
+    bind vm: ContactsViewModel;
+
+    list items: vm.Contacts selected: vm.SelectedContact of Contact -> vm.OpenCommand(item) {
+        text item.Name;
+        text item.Email;
+        badge item.Tier when(item.IsVip);
+        checkbox "Active" item.IsActive;
+        button "Call" -> vm.CallCommand(item) enabled(item.HasPhone);
+        button "Details" -> navigate(ContactDetailView);
+    }
+}

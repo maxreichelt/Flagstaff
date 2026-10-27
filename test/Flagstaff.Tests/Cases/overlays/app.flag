@@ -1,0 +1,6 @@
+app OverlaysApp {
+    nav top {
+        brand "Overlays";
+        link "Items" icon: list -> ItemsView;
+    }
+}

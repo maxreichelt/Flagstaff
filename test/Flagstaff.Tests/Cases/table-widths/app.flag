@@ -1,0 +1,6 @@
+app WidthsApp {
+    nav top {
+        brand "WidthsApp";
+        link "Invoices" icon: list -> InvoicesView;
+    }
+}

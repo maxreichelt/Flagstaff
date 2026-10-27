@@ -1,0 +1,6 @@
+app ConfirmApp {
+    nav top {
+        brand "Confirm";
+        link "Files" icon: document -> FilesView;
+    }
+}

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.22621.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>{{AppName}}</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UseWinUI>true</UseWinUI>
+    <Platforms>x64;ARM64</Platforms>
+    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+    <WindowsPackageType>None</WindowsPackageType>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Flagstaff brings the build targets (Flags/*.flag -> Generated/), Flagstaff.Stdlib, CommunityToolkit.Mvvm and DI. -->
+    <PackageReference Include="Flagstaff" Version="{{FlagstaffVersion}}" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="{{WindowsAppSdkVersion}}" />
+  </ItemGroup>
+
+</Project>

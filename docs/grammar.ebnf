@@ -1,0 +1,154 @@
+(* Flagstaff grammar, as implemented by src/Flagstaff.Compiler/Lexer.cs and Parser.cs.                *)
+(* Productions marked [gen] are the generic-tier syntax (any WinUI type in the element form): generic    *)
+(* elements, XAML props and property elements, on clauses, use declarations, and value forms.          *)
+(* The parser checks structure only. Which keywords exist and which props and flags each keyword takes *)
+(* come from ElementSchema*.cs (SemanticValidator, FS1000-FS1005); WinUI types, properties, events and   *)
+(* value shapes come from the control manifest (GenericValidator, FS1030-FS1045). The parser consults   *)
+(* the manifest once, for the bare-name rule below. LANG.md is the user-facing reference.               *)
+
+file            = { use_decl } { app_decl | view_decl } ;
+
+use_decl        = "use" STRING "as" PREFIX ";" ;                     (* [gen] xmlns:PREFIX="using:STRING"; *)
+                  (* only before the first app/view (else FS1051); PREFIX: lowercase IDENT, not x/local/item, *)
+                  (* declared once                                                                          *)
+
+(* ── App shell ─────────────────────────────────────────────────────────── *)
+app_decl        = "app" IDENT "{" { theme_block | nav_block } "}" ;
+
+theme_block     = "theme" "{" { IDENT ":" prop_value ";" } "}" ;
+                  (* keys: accent, font, backdrop, titlebar, styles *)
+
+nav_block       = "nav" ( "top" | "side" ) "{" { brand_decl | nav_link } "}" ;
+brand_decl      = "brand" STRING ";" ;
+nav_link        = "link" STRING { IDENT ":" prop_value } "->" IDENT ";" ;
+                  (* prop keys other than format; in practice icon: *)
+
+(* ── View ──────────────────────────────────────────────────────────────── *)
+view_decl       = "view" IDENT "{" { view_member } "}" ;
+view_member     = bind_decl | onload_decl | property_line | element ;
+                  (* [gen] property_line at view level (ViewDecl.PropertyElements): Page.Resources: { ... }, *)
+                  (* VisualStateManager.VisualStateGroups: { ... }; on lines are not allowed at view level   *)
+bind_decl       = "bind" "vm" ":" IDENT ";" ;
+onload_decl     = "onload" "->" ( binding | IDENT ) ";" ;
+                  (* onload -> vm.Load;  the vm.LoadAsync form warns FS2006 *)
+
+(* ── Elements (universal form) ─────────────────────────────────────────── *)
+element         = xaml_escape
+                | element_name [ STRING ] [ binding | item_binding ] { clause } ( ";" | block ) ;
+element_name    = KEYWORD
+                | TYPE_NAME                                (* [gen] generic element: Expander, TabViewItem *)
+                | PREFIX "." TYPE_NAME ;                   (* [gen] lvc.CartesianChart; undeclared PREFIX is FS1036 *)
+                  (* KEYWORD = any key of ElementSchema.All; an unknown lowercase word is FS1000 and is skipped *)
+                  (* to the next ";" or past a balanced { } block. TYPE_NAME is not checked by the parser.    *)
+
+block           = "{" { property_line | on_clause ";" | element | STRING [ ";" ] } "}" ;
+                  (* a bare STRING child is a text line (TextContent, also in generic elements).           *)
+                  (* [gen] a property_line belongs to the enclosing element: it is added to its props exactly *)
+                  (* as if written in the header (on lines likewise to Events); a block holding only such    *)
+                  (* lines is the same as ";"                                                                *)
+
+property_line   = key ":" ( element_value [ ";" ] | element_block [ ";" ] | prop_value ";" ) ;   (* [gen] *)
+                  (* key must start uppercase (PASCAL_KEY); a lowercase key line in a block stays FS1000 *)
+
+clause          = prop
+                | flag
+                | when_clause
+                | enabled_clause
+                | format_clause
+                | of_clause
+                | arrow
+                | on_clause ;                      (* [gen] *)
+
+prop            = key ":" prop_value ;             (* lowercase keys are Flagstaff props, including the    *)
+                                                   (* universal name:, uid:, key: (x:Key) and load: load(vm.X) *)
+key             = IDENT { "." IDENT } ;            (* IDENT may also be a lexer keyword, e.g. items:, cols:.      *)
+                                                   (* [gen] dotted keys: Grid.Row:, AutomationProperties.Name:. *)
+                                                   (* A key starting uppercase is a PASCAL_KEY (pass-through);  *)
+                                                   (* an identifier path followed by ":" is always a key, never *)
+                                                   (* the start of a new element                                *)
+flag            = IDENT ;                          (* bare word not followed by ":" and not an element name,  *)
+                                                   (* e.g. bold, fill, wrap, readonly                          *)
+on_clause       = "on" IDENT arrow ;               (* [gen] on SelectionChanged -> vm.SelectCommand; repeatable *)
+when_clause     = "when" "(" condition ")" ;
+enabled_clause  = "enabled" "(" condition ")" ;
+format_clause   = "format" ":" ( "currency" | "date" | "percent" | "number" [ "(" INT ")" ] ) ;
+                  (* another kind is FS1003 *)
+of_clause       = "of" IDENT ;
+arrow           = "->" ( "navigate" "(" IDENT ")"
+                       | binding [ "(" "item" ")" ]   (* any other argument is FS1052 *)
+                       | "cancel"                     (* button in dialog/confirm only, else FS1024 *)
+                       | IDENT ) ;                    (* -> ViewName: same as navigate(ViewName) *)
+
+(* ── Property values ───────────────────────────────────────────────────── *)
+(* Under a PASCAL_KEY only: "{" starts element_block. TYPE_NAME / PREFIX "." TYPE_NAME directly followed     *)
+(* by ";" "}" "->" "when" "enabled(" "format" "of" "on" is a bare_name (Orientation: Horizontal;). A single *)
+(* TYPE_NAME the manifest knows as a value and not as a type (any WinUI enum member or named color) is a     *)
+(* bare_name whatever follows (StackPanel Orientation: Horizontal Spacing: 8 { ... }). Otherwise it starts    *)
+(* element_value. Under a key whose last segment ends in "Type" (TargetType:) or is "Property"              *)
+(* (Setter Property: Grid.Row) it is always a type_name. Under lowercase keys a PascalCase IDENT stays IDENT  *)
+(* (name: SearchBox). The validator turns a misparsed bare enum (an element_value with no props, label,     *)
+(* block or clauses whose name is a member of the property's enum) back into a bare_name.                   *)
+(* A header element_value that ends with its own ";" also ends its owner unless the header continues       *)
+(* (key, clause, on, "->" or "{"): AppBarButton Label: "Save" Icon: SymbolIcon Symbol: Save;                *)
+(* Clauses after an element_value belong to the element_value, not to its owner.                           *)
+prop_value      = element_value                   (* [gen] PASCAL_KEY only *)
+                | element_block                   (* [gen] PASCAL_KEY only *)
+                | bare_name                       (* [gen] PASCAL_KEY only; resolved by the manifest *)
+                | type_name                       (* [gen] *Type keys only *)
+                | value_form                      (* [gen] *)
+                | binding
+                | item_binding
+                | list
+                | STRING
+                | INT
+                | range
+                | FLOAT
+                | COLOR
+                | STAR
+                | "true" | "false" | "null"
+                | IDENT ;
+
+element_value   = element ;                        (* ends with its own ";" or block; the owner then continues *)
+element_block   = "{" { element } "}" ;            (* VisualStateManager.VisualStateGroups: { ... }; no key lines *)
+type_name       = IDENT [ "." IDENT ] ;
+bare_name       = TYPE_NAME | PREFIX "." TYPE_NAME ;
+value_form      = "theme" "(" IDENT ")"            (* {ThemeResource IDENT}  *)
+                | "resource" "(" IDENT ")"         (* {StaticResource IDENT} *)
+                | "load" "(" binding ")"           (* x:Load                 *)
+                | "ref" "(" IDENT ")" { "." IDENT } ;  (* ref(Nav).Pane.Width: a name: declared in the view *)
+
+list            = "[" [ prop_value { "," prop_value } [ "," ] ] "]" ;   (* options: ["Open", "Closed"] *)
+range           = INT ".." INT ;                                         (* options: 2019..2026 *)
+binding         = "vm" "." IDENT ;
+item_binding    = "item" "." IDENT ;                                     (* only inside list/table rows *)
+
+(* ── Conditions: when(...) / enabled(...) ──────────────────────────────── *)
+condition       = or_expr ;
+or_expr         = and_expr { "||" and_expr } ;
+and_expr        = unary { "&&" unary } ;
+unary           = "!" unary | primary ;
+primary         = "(" condition ")"
+                | operand [ compare_op operand ] ;   (* a lone literal is an error (FS1051) *)
+compare_op      = ">" | "<" | ">=" | "<=" | "==" | "!=" ;
+operand         = binding | item_binding | INT | FLOAT | STRING | "true" | "false" | "null" ;
+
+(* ── XAML escape ───────────────────────────────────────────────────────── *)
+xaml_escape     = "xaml" "{" RAW_XAML "}" ;
+                  (* RAW_XAML: everything up to the matching "}", braces balanced, copied verbatim *)
+
+(* ── Tokens ────────────────────────────────────────────────────────────── *)
+STRING          = '"' { ? any character except '"' ? } '"' ;   (* no escapes, may span lines *)
+INT             = [ "-" ] digit { digit } ;
+FLOAT           = [ "-" ] digit { digit } "." digit { digit } ;
+STAR            = "*" | digit { digit } "*" ;                  (* grid widths: *, 2* (no space before *) *)
+COLOR           = "#" hex_digit { hex_digit } ;                (* #rrggbb; #rgb, #argb, #aarrggbb on Brush/Color props *)
+IDENT           = ( letter | "_" ) { letter | digit | "_" | "-" } ;
+TYPE_NAME       = IDENT ;                                      (* [gen] starting with an uppercase letter *)
+PASCAL_KEY      = key ;                                        (* [gen] starting with an uppercase letter *)
+PREFIX          = IDENT ;                                      (* [gen] lowercase, declared by use_decl   *)
+                  (* [gen] reserved words of the generic tier: use, as, on, ref, resource, load            *)
+comment         = "//" { ? any character except newline ? } ;  (* skipped, like whitespace *)
+
+letter          = ? Unicode letter ? ;
+digit           = "0" .. "9" ;
+hex_digit       = digit | "a" .. "f" | "A" .. "F" ;

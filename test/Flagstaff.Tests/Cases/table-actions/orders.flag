@@ -1,0 +1,10 @@
+view OrdersView {
+    bind vm: OrdersViewModel;
+
+    table items: vm.Orders selected: vm.SelectedOrder of Order -> vm.OpenCommand(item) {
+        col "Customer" bind: item.CustomerName;
+        col "Total"    bind: item.Total format: currency width: auto;
+        button "Edit"   -> vm.EditCommand(item);
+        button "Delete" -> vm.DeleteCommand(item) when(item.CanDelete);
+    }
+}

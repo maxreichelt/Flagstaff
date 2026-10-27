@@ -1,0 +1,17 @@
+view SettingsView {
+    bind vm: SettingsViewModel;
+
+    Expander Header: "Advanced" IsExpanded: vm.ShowAdvanced {
+        toggle "Telemetry" vm.Telemetry;
+        Slider Header: "Cache size (MB)" Minimum: 64 Maximum: 2048 Value: vm.CacheMb;
+    }
+
+    TabView {
+        TabViewItem Header: "General" IsClosable: false {
+            textbox "Display name" vm.DisplayName;
+        }
+        TabViewItem Header: "Account" IsClosable: false {
+            button "Sign out" -> vm.SignOutCommand variant: danger;
+        }
+    }
+}

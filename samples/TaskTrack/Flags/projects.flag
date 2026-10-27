@@ -1,0 +1,42 @@
+view ProjectsView {
+    bind vm: ProjectsViewModel;
+    onload -> vm.Load;
+
+    toolbar {
+        heading "Projects" icon: library;
+        spacer;
+        text vm.Summary;
+    }
+
+    split fill {
+        list items: vm.Projects selected: vm.Selected of ProjectCard width: 320 {
+            card {
+                heading item.Name;
+                text item.Owner;
+                badge item.OpenCount;
+            }
+            empty "No projects yet.";
+        }
+        group "Details" when(vm.Selected != null) fill {
+            card "Tip" icon: help name: HintCard load: load(vm.ShowHint) Background: theme(SystemFillColorAttentionBackgroundBrush) {
+                text "Pick a project on the left. A red badge next to its name counts overdue tasks.";
+                button "Got it" -> vm.DismissHintCommand;
+            }
+            StackPanel Orientation: Horizontal Spacing: 8 {
+                heading vm.SelectedName;
+                badge vm.SelectedOverdue Background: theme(SystemFillColorCriticalBrush) VerticalAlignment: Center when(vm.SelectedOverdue > 0);
+            }
+            summary {
+                line "Owner"      vm.SelectedOwner;
+                line "Open tasks" vm.SelectedOpen;
+                line "Done"       vm.SelectedDone;
+                line "Progress"   vm.SelectedProgress format: percent bold;
+            }
+            progress vm.SelectedPercent format: number;
+            alert when(vm.SelectedOverdue > 0) variant: warning {
+                "This project has overdue tasks.";
+                button "Review tasks" -> navigate(TasksView);
+            }
+        }
+    }
+}

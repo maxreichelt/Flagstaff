@@ -1,0 +1,6 @@
+app RowApp {
+    nav top {
+        brand "Rows";
+        link "Search" icon: find -> SearchView;
+    }
+}

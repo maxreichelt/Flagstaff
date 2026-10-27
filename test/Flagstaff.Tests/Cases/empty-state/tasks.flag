@@ -1,0 +1,14 @@
+view TasksView {
+    bind vm: TasksViewModel;
+
+    table items: vm.Tasks of TaskItem {
+        col "Title" bind: item.Title;
+        col "Due"   bind: item.Due format: date;
+        empty "No tasks yet.";
+    }
+
+    list items: vm.Notes of Note when(vm.ShowNotes) {
+        text item.Body;
+        empty "Nothing noted." when(!vm.IsLoading);
+    }
+}

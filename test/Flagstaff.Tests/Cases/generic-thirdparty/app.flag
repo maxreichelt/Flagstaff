@@ -1,0 +1,6 @@
+app ChartsApp {
+    nav top {
+        brand "Charts";
+        link "Charts" icon: home -> ChartsView;
+    }
+}

@@ -1,0 +1,6 @@
+app PropsApp {
+    nav top {
+        brand "Props";
+        link "Profile" icon: contact -> ProfileView;
+    }
+}

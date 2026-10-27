@@ -1,0 +1,6 @@
+app KeysApp {
+    nav top {
+        brand "Keys";
+        link "Home" icon: home -> EditorView;
+    }
+}

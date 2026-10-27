@@ -1,0 +1,9 @@
+view UploadView {
+    bind vm: UploadViewModel;
+
+    button "Upload" -> vm.UploadCommand;
+
+    toast "Uploaded." when(vm.ShowUploadedToast) variant: success duration: 3000;
+    toast "Upload failed." when(vm.ShowFailedToast) variant: danger;
+    toast "Retrying..." when(vm.ShowRetryToast) variant: warning duration: 1500;
+}

@@ -1,0 +1,62 @@
+view DashboardView {
+    bind vm: DashboardViewModel;
+    onload -> vm.Load;
+
+    Page.Resources: {
+        Style key: TightCard TargetType: Border BasedOn: resource(FlagstaffCard) {
+            Setter Property: Padding Value: "12,8";
+        }
+    }
+
+    // Below 900 px the "Up next" side card is collapsed.
+    VisualStateManager.VisualStateGroups: {
+        VisualStateGroup name: Layout {
+            VisualState name: Wide {
+                StateTriggers: { AdaptiveTrigger MinWindowWidth: 900; }
+            }
+            VisualState name: Narrow {
+                StateTriggers: { AdaptiveTrigger MinWindowWidth: 0; }
+                Setters: { Setter Target: ref(UpNext).Visibility Value: Collapsed; }
+            }
+        }
+    }
+
+    toolbar {
+        heading "Dashboard" icon: home;
+        spacer;
+        select "Project" vm.SelectedProject items: vm.ProjectNames;
+    }
+
+    Grid ColumnSpacing: 16 ColumnDefinitions: { ColumnDefinition Width: "*"; ColumnDefinition Width: "Auto"; } RowDefinitions: { RowDefinition Height: "Auto"; } {
+        cards cols: 4 Grid.Row: 0 Grid.Column: 0 {
+            stat "Open"        vm.OpenCount variant: info;
+            stat "In Progress" vm.InProgressCount variant: warning;
+            stat "Done"        vm.DoneCount variant: success;
+            stat "Overdue"     vm.OverdueCount variant: danger when(vm.OverdueCount > 0 && !vm.IsLoading);
+            card "Workload" icon: people span: 2 {
+                summary {
+                    line "Total tasks"       vm.TotalCount;
+                    line "Estimated hours"   vm.TotalEstimate format: number;
+                    line "Remaining hours"   vm.RemainingEstimate format: number bold;
+                }
+            }
+            card "Progress" icon: accept span: 2 {
+                summary {
+                    line "Completion"         vm.CompletionRate format: percent;
+                    line "High priority open" vm.HighPriorityOpen bold;
+                }
+            }
+        }
+        card "Up next" icon: calendar name: UpNext width: 240 Style: resource(TightCard) Grid.Row: 0 Grid.Column: 1 {
+            summary {
+                line "Next due" vm.NextDue format: date bold;
+                line "Task"     vm.NextDueTitle;
+            }
+        }
+    }
+
+    alert when(vm.OverdueCount > 0 && !vm.IsLoading) variant: warning {
+        "Some tasks are past their due date.";
+        button "Review tasks" -> navigate(TasksView);
+    }
+}

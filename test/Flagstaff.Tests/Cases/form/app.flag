@@ -1,0 +1,6 @@
+app FormApp {
+    nav top {
+        brand "Forms";
+        link "Entry" icon: edit -> EntryView;
+    }
+}

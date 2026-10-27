@@ -1,0 +1,19 @@
+view OrdersView {
+    bind vm: OrdersViewModel;
+    onload -> vm.LoadAsync;
+
+    toolbar {
+        heading "Orders" icon: list;
+        spacer;
+        button "New" -> vm.CreateCommand;
+    }
+
+    text "No orders yet." when(vm.IsEmpty);
+
+    table items: vm.Orders selected: vm.SelectedOrder of Order {
+        col "Customer" bind: item.CustomerName;
+        col "Total" bind: item.Total format: currency;
+        col "Placed" bind: item.PlacedOn format: date;
+        col "Status" bind: item.Status;
+    }
+}

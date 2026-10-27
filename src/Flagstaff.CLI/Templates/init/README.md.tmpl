@@ -1,0 +1,17 @@
+# {{AppName}}
+
+A WinUI 3 app whose UI is written in [Flagstaff](https://github.com/maxreichelt/Flagstaff) (`Flags/*.flag`).
+The build compiles the `.flag` files to XAML, code-behind and ViewModel partials in `Generated/` (git-ignored).
+
+```powershell
+dotnet tool restore        # installs the pinned flagstaff CLI (.config/dotnet-tools.json)
+flagstaff check            # validate Flags/*.flag (fast, writes nothing)
+flagstaff run              # build with MSBuild.exe and launch the app
+```
+
+- Add a screen: `flagstaff new view Settings --icon setting`
+- Implement commands in `ViewModels/*.cs` (`flagstaff stubs --update` adds missing `On{X}Async` methods)
+- Language reference: `flagstaff spec` (or `flagstaff spec --section Tables`)
+- Environment problems: `flagstaff doctor`
+
+Everything in this project, including the files Flagstaff generates into `Generated/`, is yours. Flagstaff's own license (MIT) covers the tool, not its output.
