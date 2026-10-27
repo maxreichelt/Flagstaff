@@ -6,7 +6,7 @@
 
   <!-- Runtime / WinUI -->
   <ItemGroup>
-    <PackageVersion Include="Microsoft.WindowsAppSDK" Version="1.7.260224002" />
+    <PackageVersion Include="Microsoft.WindowsAppSDK" Version="2.5.1" />
     <!-- tools/ManifestGen only: Windows.Foundation.UniversalApiContract.winmd for enums WinUI properties use from
          Windows.* (VirtualKey, VirtualKeyModifiers, ...). Matches the WindowsAppSDK's minimum SDK. -->
     <PackageVersion Include="Microsoft.Windows.SDK.NET.Ref" Version="10.0.22621.57" />
@@ -36,9 +36,9 @@
   <!-- Testing -->
   <ItemGroup>
     <PackageVersion Include="xunit" Version="2.9.3" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-    <PackageVersion Include="coverlet.collector" Version="6.0.4" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.1" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+    <PackageVersion Include="coverlet.collector" Version="10.1.0" />
     <PackageVersion Include="Verify.Xunit" Version="31.12.5" />
   </ItemGroup>
 
