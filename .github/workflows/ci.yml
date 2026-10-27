@@ -108,7 +108,7 @@ jobs:
         with:
           global-json-file: global.json
 
-      - uses: microsoft/setup-msbuild@v2
+      - uses: microsoft/setup-msbuild@v3
 
       # Restore-only: this job installs the freshly packed Flagstaff packages into the NuGet
       # cache, and they must never be saved back (same version number, different bits next run).
