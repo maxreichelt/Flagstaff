@@ -95,3 +95,16 @@ The full table is in [src/Flagstaff.Compiler/README.md](src/Flagstaff.Compiler/R
 ## License
 
 By contributing, you agree that your contributions are licensed under the [MIT License](LICENSE).
+
+## Releasing
+
+Pushing a tag `v<semver>` (for example `v0.3.0-alpha.1`) runs `.github/workflows/release.yml`: it packs
+`Flagstaff`, `Flagstaff.CLI` and `Flagstaff.Stdlib` at that version, publishes them to nuget.org, and creates a
+GitHub release with the CLI zip. Publishing uses [nuget.org trusted publishing](https://learn.microsoft.com/nuget/nuget-org/trusted-publishing)
+(GitHub OIDC), so no API key is stored. One-time setup:
+
+1. On nuget.org, open your username menu → **Trusted Publishing** → add a policy with repository owner
+   `maxreichelt`, repository `Flagstaff`, workflow file `release.yml`, no environment. A new policy is active for
+   7 days and becomes permanent after its first successful publish.
+2. Set the repository variable `NUGET_USER` to the nuget.org profile name (not the email):
+   `gh variable set NUGET_USER --body <profile-name>`.

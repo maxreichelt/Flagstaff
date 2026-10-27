@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write   # GitHub OIDC token for nuget.org trusted publishing
 
 env:
   DOTNET_NOLOGO: true
@@ -52,10 +53,20 @@ jobs:
           Get-ChildItem artifacts/cli -Filter *.pdb | Remove-Item
           Compress-Archive -Path artifacts/cli/* -DestinationPath "artifacts/flagstaff-cli-$env:VERSION-net10.0.zip"
 
+      # Trusted publishing: nuget.org exchanges this job's OIDC token for a one-hour API key.
+      # Requires a policy on nuget.org (username menu -> Trusted Publishing) for this repository and
+      # workflow file (release.yml), and the NUGET_USER repository variable set to the nuget.org
+      # profile name. No long-lived API key is stored anywhere.
+      - name: NuGet login (OIDC -> temporary API key)
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: ${{ vars.NUGET_USER }}
+
       - name: Push to NuGet
         shell: pwsh
         env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
         run: |
           foreach ($f in Get-ChildItem artifacts/packages -Filter *.nupkg) {
             dotnet nuget push $f.FullName --source https://api.nuget.org/v3/index.json --api-key $env:NUGET_API_KEY --skip-duplicate
