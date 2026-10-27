@@ -108,3 +108,5 @@ GitHub release with the CLI zip. Publishing uses [nuget.org trusted publishing](
    7 days and becomes permanent after its first successful publish.
 2. Set the repository variable `NUGET_USER` to the nuget.org profile name (not the email):
    `gh variable set NUGET_USER --body <profile-name>`.
+3. Prove the pipeline without publishing: `gh workflow run release.yml --ref main` runs the same workflow as a dry run
+   (pack, zip, OIDC login; packages uploaded as a run artifact; no push, no release).

@@ -3,6 +3,9 @@ name: Release
 on:
   push:
     tags: ['v*']
+  # Manual run = dry run: pack, zip and log in to nuget.org (proves the trusted-publishing policy),
+  # but do not push packages or create a release. Run with: gh workflow run release.yml --ref main
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -27,8 +30,9 @@ jobs:
         shell: pwsh
         env:
           TAG: ${{ github.ref_name }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
-          $v = $env:TAG.TrimStart('v')
+          if ($env:DRY_RUN -eq 'true') { $v = "0.0.0-dry.$env:GITHUB_RUN_NUMBER" } else { $v = $env:TAG.TrimStart('v') }
           if ($v -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$') { throw "Tag '$env:TAG' is not v<semver>." }
           "version=$v" >> $env:GITHUB_OUTPUT
           "prerelease=$($v.Contains('-').ToString().ToLower())" >> $env:GITHUB_OUTPUT
@@ -63,7 +67,17 @@ jobs:
         with:
           user: ${{ vars.NUGET_USER }}
 
+      - name: Upload packages (dry run)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-dry-run
+          path: |
+            artifacts/packages/*.nupkg
+            artifacts/*.zip
+
       - name: Push to NuGet
+        if: github.event_name == 'push'
         shell: pwsh
         env:
           NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
@@ -74,6 +88,7 @@ jobs:
           }
 
       - name: GitHub release
+        if: github.event_name == 'push'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
