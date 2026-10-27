@@ -28,7 +28,7 @@ jobs:
         with:
           global-json-file: global.json
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/.nuget/packages
           key: nuget-test-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj') }}
@@ -68,7 +68,7 @@ jobs:
         with:
           global-json-file: global.json
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/.nuget/packages
           key: nuget-pack-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj') }}
@@ -112,7 +112,7 @@ jobs:
 
       # Restore-only: this job installs the freshly packed Flagstaff packages into the NuGet
       # cache, and they must never be saved back (same version number, different bits next run).
-      - uses: actions/cache/restore@v4
+      - uses: actions/cache/restore@v6
         with:
           path: ~/.nuget/packages
           key: nuget-pack-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj') }}
