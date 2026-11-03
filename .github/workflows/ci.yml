@@ -118,7 +118,7 @@ jobs:
           key: nuget-pack-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj') }}
           restore-keys: nuget-pack-${{ runner.os }}-
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: packages
           path: artifacts/packages
